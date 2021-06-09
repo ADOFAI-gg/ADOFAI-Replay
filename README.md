@@ -1,4 +1,5 @@
 # Replay beta 
+## [최신버전](https://github.com/NoBrain0917/Replay/releases)
 
 **커스텀 레벨(에디터X)** 에서 죽었거나 깬 상태로 ```F1```을 누르면 리플레이를 저장합니다.
 
