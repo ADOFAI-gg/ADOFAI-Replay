@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +27,23 @@ namespace Replay.Patch
         public static ReplayData data = new ReplayData();
         internal static ReplayMenu Menu;
         
+
+        [AdofaiPatch(
+            "PlayHistory.OnLandOnPortal",
+            "scrController",
+            "OnLandOnPortal"
+            )]
+        public static class OnLandOnPortal
+        {
+            public static void Prefix()
+            {
+                if (!Main.IsEnabled) return;
+                if (WorldReplay.isReplayStart) return;
+                scrController __instance = scrController.instance;
+                if (!__instance.gameworld) return;
+                alive = false;
+            }
+        }
 
         [AdofaiPatch(
             "Common.Hit",
