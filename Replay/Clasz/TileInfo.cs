@@ -11,12 +11,14 @@ namespace Replay.Clasz
         public int num;
         public double angle;
         public string time;
+        public HitMargin margin = HitMargin.VeryLate;
 
         public TileInfo(int _num, double _angle, string _time)
         {
             this.num = _num;
             this.angle = _angle;
             this.time = _time;
+            //this.margin = _margin;
         }
     }
 }

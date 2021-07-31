@@ -10,6 +10,7 @@ using Replay.Clasz;
 using Steamworks;
 using TinyJson;
 using System.Collections.Generic;
+using System.Linq;
 using Replay.Lib;
 
 namespace Replay
@@ -22,11 +23,12 @@ namespace Replay
         public static string path { get; set; }
         public static Language language = new Language();
         public static int version = (int)AccessTools.Field(typeof(GCNS), "releaseNumber").GetValue(null);
+        public static bool isAlpha = false;
         public static AudioClip mainSong;
         internal static ReplayUI gui { get => thisGUIComponent; set => thisGUIComponent = value; }
         //internal static ReplaySlider gui3 { get => thisGUIComponent2; set => thisGUIComponent2 = value; }
 
-
+        private static List<Type> allTweakTypes;
 
 
         public static UnityModManager.ModEntry.ModLogger Logger { get; private set; }
@@ -42,6 +44,13 @@ namespace Replay
             Logger = modEntry.Logger;
             modEntry.OnToggle = OnToggle;
             path = modEntry.Path;
+            
+            allTweakTypes =
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(a => a.GetTypes())
+                    .Where(t => t.GetCustomAttribute<AdofaiPatchAttribute>() != null)
+                    .OrderBy(t => t.Name)
+                    .ToList();
            
             path = path.Split(new string[] { "common" }, StringSplitOptions.None)[0] + "workshop/content/977950/";
 
@@ -49,6 +58,7 @@ namespace Replay
             card.LoadImage(File.ReadAllBytes("Mods\\Replay\\card.png"));
             smallcard.LoadImage(File.ReadAllBytes("Mods\\Replay\\smallcard.png"));
             SetLanguage(Persistence.GetLanguage());
+            
             //mainSong = scrConductor.instance.song.clip;
         }
 
@@ -72,8 +82,12 @@ namespace Replay
                 if(PlayHistory.Menu!=null)
                 {
                     UnityEngine.Object.DestroyImmediate(PlayHistory.Menu);
-                    PlayHistory.Menu = null;
                 }
+
+                PlayHistory.isMenuOpening = false;
+                PlayHistory.Menu = null;
+                PlayHistory.isSave = false;
+
                 Stop(modEntry);
             }
             return true;
@@ -84,19 +98,28 @@ namespace Replay
         private static void Start(UnityModManager.ModEntry modEntry)
         {
             harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            //harmony.PatchAll(Assembly.GetExecutingAssembly());
             
-           
+            
+            foreach (Type tweakType in allTweakTypes)
+            {
+                AdofaiPatch.Patch(harmony, tweakType);
+            }
+
+
 
 
         }
 
         private static void Stop(UnityModManager.ModEntry modEntry)
         {
-            harmony.UnpatchAll(modEntry.Info.Id);
+            foreach (Type tweakType in allTweakTypes)
+            {
+                AdofaiPatch.Unpatch(harmony, tweakType);
+            }
         }
 
-        private static void SetLanguage(string language)
+        public static void SetLanguage(string language)
         {
             switch (language)
             {

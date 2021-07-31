@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
 using HarmonyLib;
 using Replay;
+using Replay.Clasz;
 
 namespace Replay.Lib
 {
@@ -26,8 +28,17 @@ namespace Replay.Lib
             AdofaiPatchAttribute metadata = patchType.GetCustomAttribute<AdofaiPatchAttribute>();
             if (metadata == null) return;
             if (metadata.IsEnabled) return;
-
+            
             if (!IsValidPatch(patchType)) return;
+            
+            if (metadata.alphaType == Alpha.DontUse)
+            {
+                if (Main.isAlpha) return;
+            }
+            if (metadata.alphaType == Alpha.Use)
+            {
+                if (!Main.isAlpha) return;
+            }
 
             Type declaringType = metadata.Assembly.GetType(metadata.ClassName);
             if (declaringType == null) return;

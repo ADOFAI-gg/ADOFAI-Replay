@@ -24,17 +24,17 @@ namespace Replay.Lib
 
         public object Get()
         {
-            return field.GetValue(instance);
+            return field?.GetValue(instance);
         }
 
         public void Set(object value)
         {
-            field.SetValue(instance,value);
+            field?.SetValue(instance,value);
         }
 
         public object Call(object[] args)
         {
-            return method.Invoke(instance, args);
+            return method?.Invoke(instance, args);
         }
 
     }

@@ -16,6 +16,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TinyJson;
 using Replay.Lib;
+using Steamworks;
 
 namespace Replay.Patch
 {
@@ -27,6 +28,24 @@ namespace Replay.Patch
         public static ReplayData data = new ReplayData();
         internal static ReplayMenu Menu;
         
+
+        [AdofaiPatch(
+            "PlayHistory.OnLandOnPortal",
+            "scrController",
+            "OnLandOnPortal"
+            )]
+        public static class OnLandOnPortal
+        {
+            public static void Prefix()
+            {
+                if (!Main.IsEnabled) return;
+                if (WorldReplay.isReplayStart) return;
+                scrController __instance = scrController.instance;
+                if (!__instance.gameworld) return;
+                alive = false;
+                data.pp = __instance.mistakesManager.IsAllPurePerfect();
+            }
+        }
 
         [AdofaiPatch(
             "PlayHistory.OnLandOnPortal",
@@ -59,28 +78,63 @@ namespace Replay.Patch
                 if (!__instance.gameworld) return;
                 if (!__instance.goShown) return;
                 if (__instance.currFloor.midSpin) return;
+                scrPlanet planet = __instance.chosenplanet;
 
+                
+                //HitMargin hitMargin = scrMisc.GetHitMargin((float)planet.angle, (float)planet.targetExitAngle, __instance.isCW, (float)((double)__instance.conductor.bpm * __instance.speed), __instance.conductor.song.pitch);
                 if (!WorldReplay.isReplayStart) data.angles.Add(new TileInfo(__instance.currentSeqID, __instance.chosenplanet.angle, ms.ToString()));
-                else WorldReplay.Hit(__instance);
+                
             }
         }
-
+        
+        /*
         [AdofaiPatch(
-            "PlayHistory.Update",
+            "PlayHistory.UpdateOnAlpha",
             "scnCLS",
-            "Update"
-            )]
-        public static class Update
+            "Update",
+            Alpha.Use
+        )]
+        public static class UpdateOnAlpha
         {
-            public static void Prefix(string ___levelToSelect, Dictionary<string, LevelData> ___loadedLevels)
+            public static void Prefix(string ___levelToSelect, Dictionary<string, object> ___loadedLevels)
             {
+                
+                
                 if (!Main.IsEnabled) return;
+                //Main.Logger.Log(___levelToSelect);
+                //Main.Logger.Log(___loadedLevels[___levelToSelect].ToString());
                 scnCLS __instance = scnCLS.instance;
                 if (__instance.cls)
                 {
                     data.id = ___levelToSelect;
                     data.name = ___loadedLevels[___levelToSelect].artist + " - " + ___loadedLevels[___levelToSelect].song;
-                    data.path = ___loadedLevels[___levelToSelect].pathData;
+                    
+                }
+            }
+        }*/
+        
+        [AdofaiPatch(
+            "PlayHistory.Update",
+            "scnCLS",
+            "Update"
+        )]
+        public static class Update
+        {
+            public static void Prefix(string ___levelToSelect, Dictionary<string, object> ___loadedLevels)
+            {
+                
+                if (!Main.IsEnabled) return;
+                scnCLS __instance = scnCLS.instance;
+                var type = Assembly.GetAssembly(typeof(ADOBase)).GetType("ADOFAI.LevelDataCLS");
+                var type2 = Assembly.GetAssembly(typeof(ADOBase)).GetType("ADOFAI.LevelData");
+
+
+                if (__instance.cls)
+                {
+                    
+                    data.id = ___levelToSelect;
+                    if(Main.isAlpha) data.name = type?.GetField("artist",AccessTools.all)?.GetValue(___loadedLevels[___levelToSelect]) + " - " + type?.GetField("song",AccessTools.all)?.GetValue(___loadedLevels[___levelToSelect]);
+                    else data.name = type2?.GetField("artist",AccessTools.all)?.GetValue(___loadedLevels[___levelToSelect]) + " - " + type2?.GetField("song",AccessTools.all)?.GetValue(___loadedLevels[___levelToSelect]);
                 }
             }
         }
@@ -141,7 +195,14 @@ namespace Replay.Patch
         {
             public static void Prefix()
             {
-                Main.mainSong = scrConductor.instance.song.clip;
+                if (!Main.IsEnabled) return;
+                if(Main.mainSong==null) Main.mainSong = scrConductor.instance.song.clip;
+                Main.SetLanguage(AccessTools.Field(typeof(RDString), "language").GetValue(null).ToString());
+                
+                var type = Assembly.GetAssembly(typeof(ADOBase)).GetType("ADOFAI.LevelDataCLS");
+                
+                Main.isAlpha = type != null;
+
             }
         }
 
@@ -156,6 +217,7 @@ namespace Replay.Patch
             public static void Prefix()
             {
                 if (!Main.IsEnabled) return;
+                
                 if (!WorldReplay.isReplayStart)
                 {
                     scrController __instance = scrController.instance;

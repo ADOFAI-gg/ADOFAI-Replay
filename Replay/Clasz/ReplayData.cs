@@ -11,6 +11,7 @@ namespace Replay.Clasz
         public string id = "";
         public string name = "SANS";
         public int start = 0;
+        public bool pp = false;
         public string path = "";
         public int end = 0;
         public string time = ""; // TinyJSON이 long 인식 못해서 string

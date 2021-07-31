@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DG.Tweening;
@@ -8,6 +9,7 @@ using Replay.Patch;
 using Replay.Clasz;
 using System.Reflection;
 using HarmonyLib;
+using Replay.Lib;
 
 namespace Replay.UI
 {
@@ -17,7 +19,16 @@ namespace Replay.UI
         public GameObject ReplayObject;
         private Text ReplayText;
         RectTransform rectTransform;
-       
+        public string text = "";
+
+        
+        private void OnGUI()
+        {
+
+
+            GUI.Label(new Rect(20,20,Screen.width,Screen.height),scrController.instance.chosenplanet.angle+"    "+scrController.instance.chosenplanet.targetExitAngle+text);
+        }
+
 
         public void ShowSaveText(bool canSave)
         {

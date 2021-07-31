@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Replay.Clasz;
 using Replay.Lib;
 
 namespace Replay.Lib
@@ -22,7 +23,19 @@ namespace Replay.Lib
 			info.declaringType = Assembly?.GetType(className);
 			info.methodName = methodName;
 		}
-
+		
+		public AdofaiPatchAttribute(string patchId, string className, string methodName, Alpha alpha)
+		{
+			PatchId = patchId;
+			ClassName = className;
+			alphaType = alpha;
+			Assembly = Assembly.GetAssembly(typeof(ADOBase));
+			MinVersion = -1;
+			MaxVersion = -1;
+			info.declaringType = Assembly?.GetType(className);
+			info.methodName = methodName;
+		}
+/*
 		public AdofaiPatchAttribute(string patchId, string className, string methodName, int minVersion = -1, int maxVersion = -1, params Type[] argumentTypes)
 		{
 			PatchId = patchId;
@@ -33,7 +46,7 @@ namespace Replay.Lib
 			info.declaringType = Assembly?.GetType(className);
 			info.methodName = methodName;
 			info.argumentTypes = argumentTypes;
-		}
+		}*/
 
 		public AdofaiPatchAttribute(string patchId, string className, string methodName, Type[] argumentTypes, ArgumentType[] argumentVariations, int minVersion = -1, int maxVersion = -1)
 		{
@@ -257,6 +270,8 @@ namespace Replay.Lib
 
 
 		public string PatchId { get; set; }
+
+		public Alpha alphaType = Alpha.Both;
 
 		public string ClassName { get; set; }
 

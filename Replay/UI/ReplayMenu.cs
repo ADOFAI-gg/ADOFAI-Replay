@@ -127,6 +127,7 @@ namespace Replay.UI
                         string text = $"{startper}% ~ {per}%";
                         if (per > 95) text = "<color=#fe566f>sogogi</color>";
                         if (length == data.end) text = "<color=#f8f700>clear</color>";
+                        if (length == data.end&&data.pp) text = "<color=#f8f700>pure perfect</color>";
 
                         GUILayout.Box("", backStyle, GUILayout.Width(790), GUILayout.Height(120));
                         GUILayout.Space(-125);
@@ -150,12 +151,10 @@ namespace Replay.UI
                                 continue;
                             }
 
-                            GCS.speedTrialMode = !(data.speed.Equals(1));
-                            if (GCS.speedTrialMode)
-                            {
+                            WorldReplay.originalSpeed = data.speed;
                                 GCS.currentSpeedRun = data.speed;
                                 GCS.nextSpeedRun = data.speed;
-                            }
+                            
                             string path = "";
                             try
                             {
@@ -169,12 +168,15 @@ namespace Replay.UI
 
                             if (Main.version >= 72) privateLoad.Call(new object[] { path, true });
                             else privateLoad.Call(new object[] { path });
+                            WorldReplay.originalSpeed = data.speed;
+                            GCS.currentSpeedRun = data.speed;
+                            GCS.nextSpeedRun = data.speed;
 
 
                             WorldReplay.Start(data);
                             Main.gui.ShowReplayText();
 
-                            /*
+                            
                                 if (WorldReplay.Slider != null)
                                 {
                                     UnityEngine.Object.DestroyImmediate(WorldReplay.Slider);
@@ -185,7 +187,7 @@ namespace Replay.UI
                                 UnityEngine.Object.DontDestroyOnLoad(WorldReplay.Slider);
                                 WorldReplay.Slider.replayData = data;
                                 WorldReplay.Slider.isStart = true;
-                            */
+                            
 
                             Main.gui.ReplayObject.SetActive(WorldReplay.isReplayStart);
                             UnityEngine.Object.DestroyImmediate(PlayHistory.Menu);
