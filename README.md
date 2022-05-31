@@ -1,6 +1,8 @@
 # Replay beta 
 **코드 뜯어고치는 중...**    
-**Fixing code...**
+**Fixing code...**    
+
+![replay](https://github.com/NoBrain0917/Replay/blob/master/replay.png?raw=true)
 
 ## [최신버전 다운](https://github.com/NoBrain0917/Replay/releases)
 
