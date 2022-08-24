@@ -1,8 +1,9 @@
 # ADOFAI Replay 
-**코드 뜯어고치는 중...**    
-**Fixing code...**    
 
 ![replay](https://github.com/NoBrain0917/Replay/blob/master/replay.png?raw=true)
+
+[불과 얼음의 춤](https://store.steampowered.com/app/977950/A_Dance_of_Fire_and_Ice/)라는 게임의 모드입니다.   
+ADOFAI.gg 커뮤니티에 참여해서 더 많은 정보를 얻어보세요! https://discord.gg/TKdpbUUfUa
 
 ## [최신버전 다운](https://github.com/NoBrain0917/Replay/releases)
 
