@@ -15,6 +15,9 @@ Replay Mod is a mod where you can save your play and watch it again at any time.
 
 ### 리플레이는 어떻게 보나요? / How do I watch the replay?
 기본적인 설정으로 레벨을 플레이 하던 중 죽거나 깰때 F9와 F11를 눌러보세요. 
+
+![save](https://github.com/NoBrain0917/Replay/blob/master/Resource/save.png?raw=true)
+
 F11키를 눌러 **리플레이를 저장**하고, 메인화면에서 리플레이 메뉴에 들어가 리플레이를 볼 수 있습니다.
 
 그럼 F9키도 리플레이 저장인가? 싶지만 F9키를 누르면 죽기 20초전부터 리플레이를 즉시 보여줍니다.    
@@ -30,8 +33,12 @@ So is the F9 key also saving replays? But if you press F9, the replay will be sh
 
 = F11 is normal replay, F9 is death cam(?)
 
-    
+
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
+
+### 리플레이 저장에 실패했어요 / Failed to save replay
+저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
+The problem is that there is no saved level path. Please save the level
 
 ---
 
