@@ -101,7 +101,7 @@ namespace Replay
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(20);
-                GUILayout.Label("데스캠 키 등록");
+                GUILayout.Label(CurrentLang.registerSpecifiedKeyText);
                 if (GUILayout.Button("   " + ((KeyCode) ReplayOption.specifiedDeathCamKeyCode) + "   ",
                         _registerKeyDeathcam ? _registerKeyButton : GUI.skin.button))
                 {
@@ -254,11 +254,11 @@ namespace Replay
             }
             else
             {
-                WatchReplayPatches.Reset();
+                ReplayBasePatches.Reset();
                 ADOBase.RestartScene();
                 if (scrController.instance != null)
                 {
-                    WatchReplayPatches._progressDisplayerCancel = true;
+                    ReplayBasePatches._progressDisplayerCancel = true;
                     scrUIController.instance.WipeToBlack(WipeDirection.StartsFromLeft);
                 }
 

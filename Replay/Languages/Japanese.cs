@@ -34,6 +34,15 @@
             agreed = "収集同意";
             noAgreed = "収集同意なし";
             saveWhen90P = "90%以上進行した場合保存";
+            levelDiff = "保存されたレベルのデータと現在のレベルのデータが一致しません。";
+            deathcamOption = "デスカメラ設定";
+            changePath = "経路を変更";
+            currentSavePath = "現在保存経路:";
+            replaySceneRPCTitle = "リプレイ選択中";
+            agreed = "収集同意";
+            noAgreed = "収集拒否";
+            saveWhen90P = "90%以上で死んだとき保存";
+            replayCount20delete = "リプレイ数が20を超えたとき自動削除";
         }
     }
 }
