@@ -66,3 +66,9 @@ Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectRepl
 - English
 - 日本語(Japanese)
 
+---
+
+## Special Thanks
+![sans](https://github.com/NoBrain0917/Replay/blob/master/Resource/specialtanks.gif?raw=true)
+- ppapman (UI Design & Feedback)
+
