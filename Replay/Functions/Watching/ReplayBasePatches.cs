@@ -455,7 +455,7 @@ namespace Replay.Functions.Menu
                 GlobalLanguage.OK = Replay.CurrentLang.okText;
                 GlobalLanguage.No = Replay.CurrentLang.noText;
                 ReplayUI.Instance.ShowNotification(Replay.CurrentLang.replayModText, Replay.CurrentLang.levelDiff,
-                    () => { }, null, RDString.language);
+                    () => { scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);}, null, RDString.language);
                 ReplayViewingTool.UpdateLayout();
                 return;
             }

@@ -112,12 +112,14 @@ namespace Replay.Functions.Menu
                 ReplayUI.Instance.ShowNotification(Replay.CurrentLang.replayMod, "<cspace=-0.05em>"+Replay.CurrentLang.replayCollectMessage,
                     () =>
                     {
+                        scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
                         _disableAll = false;
                         scrController.instance.paused = false;
                         Time.timeScale = 1;
                         Replay.ReplayOption.CanICollectReplayFile = 1;
                     }, () =>
                     {
+                        scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
                         _disableAll = false;
                         Replay.ReplayOption.CanICollectReplayFile = 2;
                         scrController.instance.paused = false;
