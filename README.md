@@ -66,3 +66,16 @@ Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectRepl
 - English
 - 日本語(Japanese)
 
+번역에 관심이 있으시다면 [이부분](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/Replay/Languages/Korean.cs)을 번역하여 풀리퀘 또는 `᲼᲼#8850`로 보내주세요.    
+If you are interested in translation, please translate [this part](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/Replay/Languages/English.cs) and send it to Pull Request or `᲼᲼#8850`
+
+---
+
+## Special Thanks
+![sans](https://github.com/NoBrain0917/Replay/blob/master/Resource/specialtanks.gif?raw=true)
+- ppapman (UI Design & Feedback)
+- ChocoSwi
+- 서재형
+- kimkealean
+- Luya
+- SHADOW_SDW
