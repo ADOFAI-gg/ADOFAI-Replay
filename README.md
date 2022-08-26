@@ -46,6 +46,10 @@ The problem is that there is no saved level path. Please save the level
 코드 특정상 리플레이에서 키를 누른 횟수가 많으면 많을수록 렉이 더 생깁니다.    
 `<얼불춤경로>/Mods/Replay/ReplayOption.xml` 열고 `CanICollectReplayFile` 부분을 `2`로 바꾼후 저장해주세요.
 
+A lag occurs when the replay file is converted to JSON and sent to the server.
+Due to code specifics, the more times a key is pressed in a replay, the more lag.
+Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectReplayFile` to `2` and save it.
+
 ---
 
 ## 지원하는 키뷰어 / Supported Keyviewers
