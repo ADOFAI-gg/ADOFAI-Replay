@@ -9,7 +9,7 @@
             replayingText = "Replaying";
             cantFindPath = "The path could not be found.";
             cantLoad = "Failed to load replay file.";
-            cantSave = "Failed to save.";
+            cantSave = "Save Failed";
             saveOptionTitle = "Replay Save Option";
             saveEverytimeDied = "Save every time a player dies ( Not recommended )";
             saveEveryLevelComplete = "Save when completing the level";
