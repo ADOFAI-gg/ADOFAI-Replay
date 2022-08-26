@@ -179,7 +179,7 @@ namespace Replay.Functions.Saving
             
             if (_replayInfo.StartTile == scrController.instance.currentSeqID)
             {
-                Replay.Log("level path is null");
+                Replay.Log("the start tile and the end tile are the same");
                 return;
             }
 
@@ -194,7 +194,13 @@ namespace Replay.Functions.Saving
             
             if (string.IsNullOrEmpty(_replayInfo.Path))
             {
-                Replay.Log("the start tile and the end tile are the same");
+                Replay.Log("level path is null");
+                return;
+            }
+            
+            if (!File.Exists(_replayInfo.Path))
+            {
+                Replay.Log("level path is null");
                 return;
             }
             
