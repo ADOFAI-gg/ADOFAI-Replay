@@ -36,11 +36,15 @@ So is the F9 key also saving replays? But if you press F9, the replay will be sh
 
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
-## 리플레이 저장에 실패했어요 / Failed to save replay
+## 리플레이 저장에 실패했어요 / Failed to save replay    
 저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
 The problem is that there is no saved level path. Please save the level
 
-## 저장하고 나서 렉이 걸려요 / There's a lag after I save the replay
+## 저장하고 나서 렉이 걸려요 / There's a lag after I save the replay    
+
+리플레이 파일을 JSON화 시켜 서버로 보내는 과정에서 렉이 발생합니다.     
+코드 특정상 리플레이에서 키를 누른 횟수가 많으면 많을수록 렉이 더 생깁니다.    
+`<얼불춤경로>/Mods/Replay/ReplayOption.xml` 열고 `CanICollectReplayFile` 부분을 `2`로 바꾼후 저장해주세요.
 
 ---
 
