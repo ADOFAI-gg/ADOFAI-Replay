@@ -7,13 +7,13 @@ ADOFAI.gg 커뮤니티에 참여해서 더 많은 정보를 얻어보세요! htt
 
 ---
 
-## [최신버전 다운 / Download latest version](https://github.com/NoBrain0917/Replay/releases)
+# [최신버전 다운 / Download latest version](https://github.com/NoBrain0917/Replay/releases)
 
 리플레이 모드는 내가 한 플레이를 저장하고 언제든지 다시 볼 수 있는 모드입니다. ~~오버워치 리플레이와 비슷합니다.~~
 Replay Mod is a mod where you can save your play and watch it again at any time. ~~It's similar to Overwatch replay.~~
     
 
-### 리플레이는 어떻게 보나요? / How do I watch the replay?
+## 리플레이는 어떻게 보나요? / How do I watch the replay?
 기본적인 설정으로 레벨을 플레이 하던 중 죽거나 깰때 F9와 F11를 눌러보세요. 
 
 ![save](https://github.com/NoBrain0917/Replay/blob/master/Resource/save.png?raw=true)
@@ -36,11 +36,18 @@ So is the F9 key also saving replays? But if you press F9, the replay will be sh
 
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
-### 리플레이 저장에 실패했어요 / Failed to save replay
+## 리플레이 저장에 실패했어요 / Failed to save replay
 저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
 The problem is that there is no saved level path. Please save the level
 
 ---
+
+## 지원하는 키뷰어 / Supported Keyviewers
+- AdofaiTweaks(By PizzaLovers007, v2.5.4 or later)
+- RainingKeys(By 파링, v0.3.0 or later)
+- OttoKeyViewer(By ChocoSwi, v1.2.1 or later)
+- KeyViewer(By, C##, v3.4.0 or later)
+
 
 ## 지원하는 언어 / Supported Languages
 - 한국어(Korean)
