@@ -9,8 +9,8 @@ namespace Replay.Functions.Saving
 {
     public class SaveReplay
     {
-        public const string TEST_URL = "http://192.168.55.142:7777";
-        public const string SERVER_URL = "http://58.232.145.134:7777";
+        public const string TEST_URL = test_server_ip;
+        public const string SERVER_URL = private_server_ip;
 
         public static void UploadToServer(string data)
         {
