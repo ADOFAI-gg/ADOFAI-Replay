@@ -30,7 +30,8 @@ So is the F9 key also saving replays? But if you press F9, the replay will be sh
 
 = F11 is normal replay, F9 is death cam(?)
 
-
+    
+![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
 ---
 
