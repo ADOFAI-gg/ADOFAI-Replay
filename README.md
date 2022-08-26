@@ -71,4 +71,8 @@ Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectRepl
 ## Special Thanks
 ![sans](https://github.com/NoBrain0917/Replay/blob/master/Resource/specialtanks.gif?raw=true)
 - ppapman (UI Design & Feedback)
-
+- ChocoSwi
+- 서재형
+- kimkealean
+- Luya
+- SHADOW_SDW
