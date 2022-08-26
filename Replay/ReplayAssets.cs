@@ -12,8 +12,7 @@ namespace Replay
 
         public static Sprite PauseImage;
         public static Sprite ResumeImage;
-        public static AudioClip SwipeIn;
-        public static AudioClip SwipeOut;
+        public static AudioClip Click;
 
         public static void Init()
         {
@@ -23,8 +22,7 @@ namespace Replay
 
             PauseImage = Assets.LoadAsset<Sprite>("assets/textures/ingameui/pause1.png");
             ResumeImage = Assets.LoadAsset<Sprite>("assets/textures/ingameui/pause2.png");
-            SwipeIn = Assets.LoadAsset<AudioClip>("assets/audios/sndscreenwipein.ogg");
-            SwipeOut = Assets.LoadAsset<AudioClip>("assets/audios/sndscreenwipeout.ogg");
+            Click = Assets.LoadAsset<AudioClip>("assets/audios/sndMenuSquelch.ogg");
 
         }
     }

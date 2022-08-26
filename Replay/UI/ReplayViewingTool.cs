@@ -27,6 +27,8 @@ namespace Replay.UI
             if (rpl == _playingReplayInfo) return;
             _playingReplayInfo = rpl;
             
+            PauseImage.sprite = ReplayAssets.ResumeImage;
+            
             ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
             ReplayUI.Instance.InGameUI.gameObject.SetActive(true);
             ReplayUI.Instance.EndTime.text = ReplayUtils.Ms2time((_playingReplayInfo.PlayTime));
@@ -75,10 +77,10 @@ namespace Replay.UI
                 if (beforeDistance < Math.Abs(time - currentTime)) break;
             }
 
-            if (_playingReplayInfo.StartTile > chooseSeqID)
-                chooseSeqID = _playingReplayInfo.StartTile;
-            if (_playingReplayInfo.EndTile < chooseSeqID)
-                chooseSeqID = _playingReplayInfo.EndTile;
+            if (startTile > chooseSeqID)
+                chooseSeqID = startTile;
+            if (endTile < chooseSeqID)
+                chooseSeqID = endTile;
 
             return chooseSeqID;
         }
@@ -92,18 +94,16 @@ namespace Replay.UI
 
             if (WatchReplay.IsPaused)
             {
-                PauseImage.sprite = ReplayAssets.ResumeImage;
+                PauseImage.sprite = ReplayAssets.PauseImage;
                 if (WatchReplay.IsPlanetDied) return;
-                scrController.instance.enabled = false;
                 scrController.instance.audioPaused = true;
                 Time.timeScale = 0;
             }
             else
             {
-                PauseImage.sprite = ReplayAssets.PauseImage;
+                PauseImage.sprite = ReplayAssets.ResumeImage;
                 if (WatchReplay.IsPlanetDied) return;
                 scrController.instance.audioPaused = false;
-                scrController.instance.enabled = true;
                 Time.timeScale = 1;
             }
         }
@@ -167,7 +167,7 @@ namespace Replay.UI
                 var currentTime = (scrController.instance.currFloor.entryTime + (_goBackStack * 10)) - startTime;
                 var seqID = FindFloorBySecond(currentTime, _playingReplayInfo.StartTile, _playingReplayInfo.EndTile);
 
-                WatchReplayPatches.ReplayStartAt(seqID);
+                ReplayBasePatches.ReplayStartAt(seqID);
                 _goBackStack = 0;
             });
         }
@@ -195,7 +195,7 @@ namespace Replay.UI
                 var currentTime = (scrController.instance.currFloor.entryTime + (_goBackStack * 10)) - startTime;
                 var seqID = FindFloorBySecond(currentTime, _playingReplayInfo.StartTile, _playingReplayInfo.EndTile);
 
-                WatchReplayPatches.ReplayStartAt(seqID);
+                ReplayBasePatches.ReplayStartAt(seqID);
                 _goBackStack = 0;
             });
         }
@@ -229,7 +229,7 @@ namespace Replay.UI
                 var currentTime = (endTime - startTime) * value;
                 var seqID = FindFloorBySecond(currentTime, _playingReplayInfo.StartTile, _playingReplayInfo.EndTile);
                 
-                WatchReplayPatches.ReplayStartAt(seqID);
+                ReplayBasePatches.ReplayStartAt(seqID);
                 _goBackStack = 0;
                 _valueChanging = false;
                 _isEditingTime = false;
@@ -272,7 +272,7 @@ namespace Replay.UI
             _pitchUpDown = DOVirtual.DelayedCall(0.3f, () =>
             {
                 WatchReplay.PatchedPitch = GCS.currentSpeedTrial;
-                WatchReplayPatches.ReplayStartAt(scrController.instance.currentSeqID-1);
+                ReplayBasePatches.ReplayStartAt(scrController.instance.currentSeqID-1);
                 ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
                 _valueChanging = false;
             });
@@ -300,7 +300,7 @@ namespace Replay.UI
             _pitchUpDown = DOVirtual.DelayedCall(0.3f, () =>
             {
                 WatchReplay.PatchedPitch = GCS.currentSpeedTrial;
-                WatchReplayPatches.ReplayStartAt(scrController.instance.currentSeqID-1);
+                ReplayBasePatches.ReplayStartAt(scrController.instance.currentSeqID-1);
                 ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
                 _valueChanging = false;
             });

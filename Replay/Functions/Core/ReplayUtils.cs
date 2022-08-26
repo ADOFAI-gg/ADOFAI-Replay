@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 using ADOFAI;
 using DG.Tweening;
 using DG.Tweening.Core;
@@ -232,6 +233,12 @@ namespace Replay.Functions.Core
             tweenerCore.SetOptions(snapping).SetTarget(target);
             return tweenerCore;
         }
+        
+        public static string RemoveHTML(string html)
+        {
+            return Regex.Replace(html, "<.*?>", String.Empty).Trim();
+        }
+
         
         public static string RemoveInvalidChars(string filename)
         {

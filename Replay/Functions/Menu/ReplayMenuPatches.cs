@@ -65,7 +65,7 @@ namespace Replay.Functions.Menu
         [HarmonyPrefix]
         public static bool DisableErrorDobePatch(object message)
         {
-            return !message.ToString().Contains("Target or field is missing");
+            return !message.ToString().Contains("Target or field");
         }
         
         
@@ -82,8 +82,10 @@ namespace Replay.Functions.Menu
 
             Replay.AllKeyCodes = (KeyCode[])typeof(KeyCode).GetEnumValues();
             Replay.IsUsingNoStopMod = UnityModManager.FindMod("NoStopMod") != null;
+
+            ReplayUIUtils.SwipeStart = ADOBase.gc.soundEffects[(int)SfxSound.ScreenWipeOut];
             
-            ReplayUIUtils.SwipeStart = ReplayAssets.SwipeIn;
+            
             
             CompatKeyViewers = ReplayUtils.GetKeyviewers();
             foreach (var k in Replay.ReplayOption.noUsingKeyviewers)
@@ -131,6 +133,15 @@ namespace Replay.Functions.Menu
                 var rpl = ReplayUtils.LoadReplay(args[1]);
                 WatchReplay.Play(rpl);
             }
+        }
+
+        
+        [HarmonyPatch(typeof(ReplayUIUtils), "InitUI")]
+        [HarmonyPostfix]
+        public static void AddBackgroundScript()
+        {
+            ReplayUIUtils._swipeImage.parent.gameObject.AddComponent<ReplayBackground>();
+            ReplayUIUtils.Audio.ignoreListenerPause = true;
         }
 
 

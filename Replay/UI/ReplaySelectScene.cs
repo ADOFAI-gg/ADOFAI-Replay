@@ -29,6 +29,7 @@ namespace Replay.UI
         
         public static void Awake()
         {
+            scrSfx.instance.PlaySfx(SfxSound.ScreenWipeIn);
             var discord = (Discord.Discord)typeof(DiscordController).GetField("discord", AccessTools.all)?
                 .GetValue(DiscordController.instance);
             if (discord != null)
@@ -47,6 +48,7 @@ namespace Replay.UI
                 ReplayUIUtils.Audio.clip = scnReplayIntro.scnReplayIntro.Instance.IntroBGMDLC;
             else
                 ReplayUIUtils.Audio.clip = scnReplayIntro.scnReplayIntro.Instance.IntroBGM;
+            
 
             SetLanguage();
 
@@ -61,7 +63,7 @@ namespace Replay.UI
                     var rpl = ReplayUtils.LoadReplay(f);
                     var rpinfo = new ReplayUIInfo
                     {
-                        Song = rpl.SongName,
+                        Song = rpl.SongName.Replace("\n", "").Replace("\r", ""),
                         Artist = rpl.ArtistName,
                         StartProgress = (int)(((float)rpl.StartTile / ((float)rpl.AllTile - 1)) * 100),
                         EndProgress = (int)(((float)rpl.EndTile / ((float)rpl.AllTile - 1)) * 100),
@@ -73,7 +75,11 @@ namespace Replay.UI
                     if (pre != null)
                         rpinfo.Preview = pre;
 
-                    rpinfo.OnDelete = () => { File.Delete(f); };
+                    rpinfo.OnDelete = () =>
+                    {
+                        scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
+                        File.Delete(f);
+                    };
                     rpinfo.OnPlay = () => { ReplayUIUtils.DoSwipe(() => { WatchReplay.Play(rpl); }); };
                     scnReplayIntro.scnReplayIntro.Instance.AddReplayCard(rpinfo);
 
