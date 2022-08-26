@@ -40,6 +40,8 @@ So is the F9 key also saving replays? But if you press F9, the replay will be sh
 저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
 The problem is that there is no saved level path. Please save the level
 
+## 저장하고 나서 렉이 걸려요 / There's a lag after I save the replay
+
 ---
 
 ## 지원하는 키뷰어 / Supported Keyviewers
