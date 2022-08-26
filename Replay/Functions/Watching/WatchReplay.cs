@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Threading.Tasks;
+using DG.Tweening;
 using HarmonyLib;
 using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
@@ -75,7 +77,23 @@ namespace Replay.Functions.Watching
             }
         }
         
+        // A method to solve the hall of mirror room bug
+        public static void DisableAllEffects(){
+            if(scrVfx.instance != null)
+                scrVfx.instance.enabled = false;
 
+            if (scrVfxPlus.instance != null)
+            {
+                scrVfxPlus.instance.enabled = false;
+                scrVfxPlus.instance.Reset();
+                scrCamera.instance.camobj.clearFlags = CameraClearFlags.Depth;
+            }
+
+            DOTween.KillAll();
+        }
+
+        
+        // Play a replay based on the replayInfo
         public static void Play(ReplayInfo rpl)
         {
             if (rpl.IsOfficialLevel)
@@ -94,6 +112,7 @@ namespace Replay.Functions.Watching
             }
             else
             {
+                if (!File.Exists(rpl.Path)) return;
                 OfficialStartAt = 0;
                 SceneManager.LoadScene("scnEditor");
                 GCS.customLevelPaths = new string[1];
@@ -102,7 +121,7 @@ namespace Replay.Functions.Watching
                 GCS.checkpointNum = rpl.StartTile;
             }
 
-            WatchReplayPatches.Start(rpl);
+            ReplayBasePatches.Start(rpl);
             KeyboradHook.OnStartInputs();
         }
         

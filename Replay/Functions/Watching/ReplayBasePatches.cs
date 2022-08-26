@@ -20,7 +20,7 @@ using UnityModManagerNet;
 namespace Replay.Functions.Menu
 {
     [HarmonyPatch]
-    public class WatchReplayPatches
+    public class ReplayBasePatches
     {
         private static bool _forceMove;
         private static bool _forcePlay;
@@ -28,18 +28,15 @@ namespace Replay.Functions.Menu
         private static bool _replayPlanetHit;
         private static bool _beforeNoStopModEnabled;
         private static bool _dontDie;
+        private static bool _paused;
         private static int _index;
         private static UnityModManager.ModEntry _noStopModModEntry;
-        private static ReplayInfo _playingReplayInfo;
-
-        private static float _cameraScale;
-        private static bool _freeCameraMode = true;
-        private static Vector3 _lastRotate;
-        private static float _lastZoom;
+        
 
         private static List<Tween> _requestedHold = new List<Tween>();
         
         internal static bool _progressDisplayerCancel;
+        internal static ReplayInfo _playingReplayInfo;
 
         // Disable NoStopMod if installed
         // Not Used
@@ -75,9 +72,10 @@ namespace Replay.Functions.Menu
 
             _playingReplayInfo = null;
             _index = 0;
-            _freeCameraMode = true;
             _dontDie = false;
+            Cursor.visible = true;
 
+            ReplayFreeCameraPatches._freeCameraMode = true;
             WatchReplay.IsPlaying = false;
 
             GCS.customLevelPaths = null;
@@ -160,6 +158,7 @@ namespace Replay.Functions.Menu
             _forcePlay = true;
             _playingReplayInfo = replayInfo;
             _index = 0;
+            Cursor.visible = true;
 
             GCS.currentSpeedTrial = replayInfo.Speed;
             GCS.nextSpeedRun = replayInfo.Speed;
@@ -191,9 +190,11 @@ namespace Replay.Functions.Menu
             if (scrController.instance == null) return false;
             if (scrController.instance.currentState != States.PlayerControl)
                 return false;
+            if (WatchReplay.IsPaused) return false;
 
             if (CheckInvalidIndex())
                 return false;
+            
 
             var planet = scrController.instance.chosenplanet;
 
@@ -211,44 +212,9 @@ namespace Replay.Functions.Menu
                 if (angleOverd && validTile && nextTileInfoVailed)
                     return true;
             }
+            
 
             return scrController.isGameWorld && angleOverd && validTile;
-        }
-
-
-
-
-        // Fix Tile Glow Bug
-        private static void SetTileGlow()
-        {
-            for (var n = GCS.checkpointNum; n <= _playingReplayInfo.EndTile; n++)
-            {
-                var listFloor = scrLevelMaker.instance.listFloors[n];
-                if ((bool)listFloor.bottomglow)
-                    listFloor.bottomglow.enabled = false;
-                listFloor.topglow.enabled = false;
-            }
-        }
-
-        // Fixed a bug where Freeroam was not visible
-        private static void FixFreeroamBug()
-        {
-            foreach (var l in scrLevelMaker.instance.listFreeroam)
-            {
-                foreach (scrFloor f in l)
-                {
-                    f.ToggleCollider(true);
-                    f.isLandable = true;
-                    f.opacity = 1;
-                    f.freeroam = true;
-                    f.freeroamGenerated = true;
-                }
-
-                var p = l.parentFloor;
-                p.enabled = true;
-                p.freeroam = true;
-                p.freeroamGenerated = false;
-            }
         }
 
 
@@ -277,9 +243,10 @@ namespace Replay.Functions.Menu
         [HarmonyPostfix]
         public static void SetStartAtPatch()
         {
+
+
             if (!WatchReplay.IsPlaying) return;
             if (!_playingReplayInfo.IsOfficialLevel) return;
-
             GCS.checkpointNum = WatchReplay.OfficialStartAt;
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
@@ -304,6 +271,8 @@ namespace Replay.Functions.Menu
         [HarmonyPrefix]
         public static void ForceOfficialSeqIDPlayPatch()
         {
+            _paused = scrController.instance.paused;
+            
             if (!WatchReplay.IsPlaying) return;
             if (!scrController.isGameWorld) return;
             if (!_playingReplayInfo.IsOfficialLevel) return;
@@ -321,6 +290,12 @@ namespace Replay.Functions.Menu
         {
             if (!WatchReplay.IsPlaying) return true;
             Reset();
+            
+            scrController.instance.paused = true;
+            scrController.instance.enabled = false;
+            scrController.instance.paused = true;
+            
+            WatchReplay.DisableAllEffects();
 
             ___exitingToMainMenu = true;
             RDUtils.SetGarbageCollectionEnabled(true);
@@ -331,16 +306,13 @@ namespace Replay.Functions.Menu
             GCS.checkpointNum = 0;
             GCS.currentSpeedTrial = 1f;
 
-            if (scrController.instance.pauseMenu.gameObject.activeSelf)
-                scrController.instance.TogglePauseGame();
-
             scrController.deaths = 0;
-            scrController.instance.enabled = false;
-            scrController.instance.paused = true;
             scrConductor.instance.hasSongStarted = false;
             scrConductor.instance.KillAllSounds();
             scrConductor.instance.song.Stop();
 
+
+            Time.timeScale = 1;
             ReplayUIUtils.DoSwipe(() => { SceneManager.LoadScene("scnReplayIntro"); });
             _progressDisplayerCancel = true;
             scrUIController.instance.WipeToBlack(WipeDirection.StartsFromLeft);
@@ -376,31 +348,68 @@ namespace Replay.Functions.Menu
 
 
         [HarmonyPatch(typeof(scrController), "TogglePauseGame")]
-        [HarmonyPostfix]
-        public static void TogglePauseGamePatch()
+        [HarmonyPrefix]
+        public static bool TogglePauseGamePatch(ref bool __result, int ___frameStart, ref int ___lastTogglePauseFrame)
         {
-            if (!WatchReplay.IsPlaying) return;
-            if (!scrController.instance.pauseMenu.gameObject.activeSelf)
+            if (!WatchReplay.IsPlaying) return true;
+            var controller = scrController.instance;
+            AudioManager.pauseGameSounds = false;
+            if (GCS.standaloneLevelMode && (Time.frameCount - ___frameStart < 4 ||
+                                            (ADOBase.customLevel != null && ADOBase.customLevel.isLoading)))
             {
-                if (WatchReplay.IsPlanetDied)
+                __result = _paused;
+                return false;
+            }
+
+            if (!ADOBase.isEditingLevel && scrUIController.instance.transitionPanel.gameObject.activeSelf)
+            {
+                __result = _paused;
+                return false;
+            }
+            
+            if (GCS.d_boothDisablePossibleMessUpButtons || GCS.webVersion)
+                controller.QuitToMainMenu();
+
+            _paused = !_paused;
+
+            controller.paused = !WatchReplay.IsPlaying && _paused;
+            ___lastTogglePauseFrame = 0;
+            controller.audioPaused = _paused;
+            controller.enabled = WatchReplay.IsPlaying || !_paused;
+            Time.timeScale = (_paused ? 0f : 1f);
+            
+            if (scnEditor.instance == null || GCS.standaloneLevelMode)
+            {
+                if (_paused)
                 {
-                    scrController.instance.enabled = false;
-                    Time.timeScale = 0;
-                    scrController.instance.audioPaused = true;
+                    controller.takeScreenshot.ShowPauseMenu(false);
+                }
+                else
+                {
+                    typeof(scrController).GetMethod("CheckForAudioOutputChange", AccessTools.all)
+                        .Invoke(controller, new object[]{});
+                    controller.pauseMenu.Hide();
                 }
             }
+
+            __result = _paused;
+            return false;
         }
 
-
-        [HarmonyPatch(typeof(scrHitErrorMeter), "UpdateLayout")]
-        [HarmonyPostfix]
-        public static void SetHitErrorMeterYPatch(scrHitErrorMeter __instance)
+        [HarmonyPatch(typeof(scrPlanet), "Update_RefreshAngles")]
+        [HarmonyPrefix]
+        public static bool PauseAngle()
         {
-            if (!WatchReplay.IsPlaying) return;
-            var p = __instance.wrapperRectTransform.anchoredPosition;
-            __instance.wrapperRectTransform.anchoredPosition = new Vector2(0, p.y + 100);
+            if(!WatchReplay.IsPlaying) return true;
+            if (WatchReplay.IsPlanetDied)
+            {
+                scrController.instance.audioPaused = true;
+                return false;
+            }
+            return true;
         }
-
+        
+        
 
         [HarmonyPatch(typeof(scrPressToStart), "ShowText")]
         [HarmonyPostfix]
@@ -416,7 +425,33 @@ namespace Replay.Functions.Menu
 
             if (hash != _playingReplayInfo.PathDataHash)
             {
-                scrController.instance.QuitToMainMenu();
+                Reset();
+            
+                WatchReplay.DisableAllEffects();
+                
+                RDUtils.SetGarbageCollectionEnabled(true);
+                ADOBase.audioManager.StopLoadingMP3File();
+
+                GCS.standaloneLevelMode = false;
+                GCS.worldEntrance = null;
+                GCS.checkpointNum = 0;
+                GCS.currentSpeedTrial = 1f;
+
+                if (scrController.instance.pauseMenu.gameObject.activeSelf)
+                    scrController.instance.TogglePauseGame();
+
+                scrController.deaths = 0;
+                scrController.instance.enabled = false;
+                scrController.instance.paused = true;
+                scrConductor.instance.hasSongStarted = false;
+                scrConductor.instance.KillAllSounds();
+                scrConductor.instance.song.Stop();
+                
+                _progressDisplayerCancel = true;
+                scrUIController.instance.WipeToBlack(WipeDirection.StartsFromLeft);
+                
+                SceneManager.LoadScene("scnReplayIntro");
+
                 GlobalLanguage.OK = Replay.CurrentLang.okText;
                 GlobalLanguage.No = Replay.CurrentLang.noText;
                 ReplayUI.Instance.ShowNotification(Replay.CurrentLang.replayModText, Replay.CurrentLang.levelDiff,
@@ -432,10 +467,13 @@ namespace Replay.Functions.Menu
                 return;
             }
 
+            
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
+            
+            Cursor.visible = true;
 
-            SetTileGlow();
+            FixReplayBugsPatches.SetTileGlow();
 
             var planet = scrController.instance.chosenplanet;
             WatchReplay.SetPlanetColor(planet, _playingReplayInfo);
@@ -454,7 +492,6 @@ namespace Replay.Functions.Menu
 
             if (WatchReplay.IsPaused)
             {
-                scrController.instance.enabled = false;
                 Time.timeScale = 0;
                 scrController.instance.audioPaused = true;
             }
@@ -464,26 +501,8 @@ namespace Replay.Functions.Menu
                 scrController.instance.audioPaused = false;
             }
         }
-
-
-        [HarmonyPatch(typeof(scrFailBar), "DidFail")]
-        [HarmonyPrefix]
-        public static void SafeNullPatch(ref scrController ___controller)
-        {
-            if (___controller == null)
-                ___controller = scrController.instance;
-        }
-
-
-        [HarmonyPatch(typeof(scrCountdown), "Update")]
-        [HarmonyPrefix]
-        public static void SafeNull2Patch(ref scrController ___controller)
-        {
-            if (___controller == null)
-                ___controller = scrController.instance;
-        }
-
-
+        
+        
         [HarmonyPatch(typeof(scrController), "Start_Rewind")]
         [HarmonyPostfix]
         public static void PlanetColorChangePatch()
@@ -496,7 +515,6 @@ namespace Replay.Functions.Menu
 
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
-
         }
 
 
@@ -539,6 +557,14 @@ namespace Replay.Functions.Menu
             if (!WatchReplay.IsPlaying) return;
             Reset();
         }
+        
+        [HarmonyPatch(typeof(scrUIController), "WipeFromBlack")]
+        [HarmonyPrefix]
+        public static void WipeFromBlackkInReplayingPatch()
+        {
+            if (!WatchReplay.IsPlaying) return;
+            scrUIController.wipeDirection = WipeDirection.StartsFromRight;
+        }
 
 
         [HarmonyPatch(typeof(scnEditor), "ResetScene")]
@@ -548,6 +574,7 @@ namespace Replay.Functions.Menu
             if (!WatchReplay.IsPlaying) return;
             Reset();
         }
+        
 
 
         [HarmonyPatch(typeof(scrController), "Hit")]
@@ -564,18 +591,7 @@ namespace Replay.Functions.Menu
             _replayPlanetHit = false;
             return true;
         }
-
-
-        [HarmonyPatch(typeof(ffxCameraPlus), "StartEffect")]
-        [HarmonyPrefix]
-        public static bool StopCameraMovingPatch(ffxCameraPlus __instance)
-        {
-            if (_freeCameraMode) return true;
-            _lastRotate = new Vector3(0, 0, __instance.targetRot + __instance.vfx.camAngle);
-            _lastZoom = __instance.targetZoom;
-            return false;
-        }
-
+        
 
         [HarmonyPatch(typeof(scrPlanet), "SwitchChosen")]
         [HarmonyPrefix]
@@ -588,84 +604,8 @@ namespace Replay.Functions.Menu
             __instance.angle = angle;
             __instance.cachedAngle = angle;
         }
-
-
-        [HarmonyPatch(typeof(scnEditor), "Update")]
-        [HarmonyPrefix]
-        public static void CameraMovePatch()
-        {
-            if (WatchReplay.IsPlaying)
-            {
-                if (Input.GetKeyDown(KeyCode.B))
-                {
-                    _freeCameraMode = !_freeCameraMode;
-                    if (_freeCameraMode)
-                    {
-                        scrCamera.instance.timer = 10000f;
-                        scrCamera.instance.transform.localEulerAngles = _lastRotate;
-                        scrCamera.instance.zoomSize = _lastZoom;
-                    }
-                    else
-                    {
-                        _lastRotate = scrCamera.instance.transform.localEulerAngles;
-                        var moveTween = (Tween)typeof(ffxCameraPlus).GetField("moveTween", AccessTools.all)
-                            ?.GetValue(null);
-                        var rotationTween = (Tween)typeof(ffxCameraPlus).GetField("rotationTween", AccessTools.all)
-                            ?.GetValue(null);
-                        var zoomTween = (Tween)typeof(ffxCameraPlus).GetField("zoomTween", AccessTools.all)
-                            ?.GetValue(null);
-                        moveTween?.Kill();
-                        rotationTween?.Kill();
-                        zoomTween?.Kill();
-                        scrCamera.instance.transform.localEulerAngles = new Vector3(0, 0, 0);
-                    }
-
-                    scrCamera.instance.enabled = _freeCameraMode;
-                }
-            }
-
-            if (_freeCameraMode) return;
-            if (scrCamera.instance.camobj.transform.localEulerAngles != Vector3.zero)
-                scrCamera.instance.camobj.transform.localEulerAngles = new Vector3(0, 0, 0);
-
-            if (scrCamera.instance.transform.parent.localEulerAngles != Vector3.zero)
-                scrCamera.instance.transform.parent.localEulerAngles = new Vector3(0, 0, 0);
-
-            var pos = scrCamera.instance.transform.position;
-
-            _cameraScale = scrCamera.instance.camobj.orthographicSize;
-
-            if (Input.GetMouseButton(0))
-                scrCamera.instance.transform.position = new Vector3(
-                    pos.x - (Input.GetAxis("Mouse X") * 10f * _cameraScale / 250f),
-                    pos.y - (Input.GetAxis("Mouse Y") * 5f * _cameraScale / 250f), pos.z);
-
-            scrCamera.instance.camobj.orthographicSize -= Input.GetAxisRaw("Mouse ScrollWheel") * 10f;
-            if (scrCamera.instance.camobj.orthographicSize < 1)
-                scrCamera.instance.camobj.orthographicSize = 1;
-
-        }
-
-
-        [HarmonyPatch(typeof(scrController), "PlayerControl_Enter")]
-        [HarmonyPrefix]
-        public static void FixSongNotPlayingBugPatch()
-        {
-            if (scrConductor.instance.song != null)
-                scrConductor.instance.song.volume = 1;
-
-            if (WatchReplay.IsPlaying)
-                FixFreeroamBug();
-        }
-
-
-        [HarmonyPatch(typeof(scrController), "OnApplicationQuit")]
-        [HarmonyPrefix]
-        public static void OnApplicationQuitPatch()
-        {
-            WatchReplay.IsPlaying = false;
-            GCS.checkpointNum = 0;
-        }
+        
+        
 
 
         [HarmonyPatch(typeof(scrConductor), "Update")]
@@ -680,15 +620,17 @@ namespace Replay.Functions.Menu
 
             if (CheckInvalidIndex()) return;
 
-            while (IsHitNow() && !WatchReplay.IsLoading)
+            var num0 = 10;
+            while (IsHitNow() && !WatchReplay.IsLoading && WatchReplay.IsPlaying && num0 > 0)
             {
-                if (WatchReplay.IsLoading || _forceMove || _forcePlay || WatchReplay.IsPaused || !WatchReplay.IsPlaying)
+                if (WatchReplay.IsLoading || _forceMove || _forcePlay || WatchReplay.IsPaused || !WatchReplay.IsPlaying || scrController.instance == null)
                     break;
 
                 if (CheckInvalidIndex())
                     break;
 
                 ReplayHit();
+                num0--;
 
             }
         }
