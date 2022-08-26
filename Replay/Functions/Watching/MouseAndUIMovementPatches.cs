@@ -11,44 +11,37 @@ namespace Replay.Functions.Watching
     public class MouseAndUIMovementPatches
     {
         private static float _showingCursorTime;
-        private static Tween _toolTween, _meterTween;
-        private static float _toolY, _meterY;
+        private static Tween tween1, tween2;
+        private static float y = -999, y2;
         private static RectTransform _replayToolUI;
         private static RectTransform _errorMeter;
         private static bool _hided;
 
-        private static void HideUI(bool force = false)
+        private static void HideUI()
         {
-            if (_hided && !force) return;
+            if (_hided) return;
             
-            _toolTween?.Kill();
-            _meterTween?.Kill();
+            tween1?.Kill();
+            tween2?.Kill();
             
             Cursor.visible = false;
 
-            _toolTween = ReplayUtils.DOAnchorPos(_replayToolUI, new Vector2(_replayToolUI.anchoredPosition.x, _toolY - 70), 0.5f).SetUpdate(true);
-            _meterTween = ReplayUtils.DOAnchorPos(_errorMeter, new Vector2(_errorMeter.anchoredPosition.x, _meterY - 100), 0.5f).SetUpdate(true);
+            tween1 = ReplayUtils.DOAnchorPos(_replayToolUI, new Vector2(_replayToolUI.anchoredPosition.x, y - 70), 0.5f).SetUpdate(true);
+            tween2 = ReplayUtils.DOAnchorPos(_errorMeter, new Vector2(_errorMeter.anchoredPosition.x, y2 - 100), 0.5f).SetUpdate(true);
             _hided = true;
         }
         
-        private static void ShowUI(bool force = false)
+        private static void ShowUI()
         {
-            if (!_hided && !force) return;
+            if (!_hided) return;
             
-            if (_replayToolUI == null)
-            {
-                _replayToolUI = ReplayUI.Instance.Back10s.transform.parent.GetComponent<RectTransform>();
-                _toolY = _replayToolUI.anchoredPosition.y;
-            }
-
-            
-            _toolTween?.Kill();
-            _meterTween?.Kill();
+            tween1?.Kill();
+            tween2?.Kill();
             
             Cursor.visible = true;
 
-            _toolTween = ReplayUtils.DOAnchorPos(_replayToolUI, new Vector2(_replayToolUI.anchoredPosition.x, _toolY), 0.5f).SetUpdate(true);
-            _meterTween = ReplayUtils.DOAnchorPos(_errorMeter, new Vector2(_errorMeter.anchoredPosition.x, _meterY), 0.5f).SetUpdate(true);
+            tween1 = ReplayUtils.DOAnchorPos(_replayToolUI, new Vector2(_replayToolUI.anchoredPosition.x, y), 0.5f).SetUpdate(true);
+            tween2 = ReplayUtils.DOAnchorPos(_errorMeter, new Vector2(_errorMeter.anchoredPosition.x, y2), 0.5f).SetUpdate(true);
             _hided = false;
         }
         
@@ -60,7 +53,7 @@ namespace Replay.Functions.Watching
             var p = __instance.wrapperRectTransform.anchoredPosition;
             __instance.wrapperRectTransform.anchoredPosition = new Vector2(0, p.y + 100);
             _errorMeter = __instance.wrapperRectTransform;
-            _meterY = _errorMeter.anchoredPosition.y;
+            y2 = _errorMeter.anchoredPosition.y;
         }
 
         [HarmonyPatch(typeof(PauseMenu), "UpdateCursorVisibility")]
@@ -76,7 +69,7 @@ namespace Replay.Functions.Watching
         public static void ShowCursor2()
         {
             if (!WatchReplay.IsPlaying) return;
-            ShowUI(true);
+            Cursor.visible = true;
         }
 
         [HarmonyPatch(typeof(scrConductor), "Update")]
@@ -88,7 +81,7 @@ namespace Replay.Functions.Watching
             if (_replayToolUI == null)
             {
                 _replayToolUI = ReplayUI.Instance.Back10s.transform.parent.GetComponent<RectTransform>();
-                _toolY = _replayToolUI.anchoredPosition.y;
+                y = _replayToolUI.anchoredPosition.y;
             }
 
        
