@@ -50,6 +50,8 @@ A lag occurs when the replay file is converted to JSON and sent to the server.
 Due to code specifics, the more times a key is pressed in a replay, the more lag.
 Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectReplayFile` to `2` and save it.
 
+![change](https://github.com/NoBrain0917/Replay/blob/master/Resource/change.png?raw=true)
+
 ---
 
 ## 지원하는 키뷰어 / Supported Keyviewers
