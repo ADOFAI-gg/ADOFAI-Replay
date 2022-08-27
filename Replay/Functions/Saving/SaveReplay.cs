@@ -18,7 +18,7 @@ namespace Replay.Functions.Saving
             var wc = new WebClient();
             wc.Headers[HttpRequestHeader.ContentType] = "application/json";
             wc.Encoding = Encoding.UTF8;
-            wc.UploadString(new Uri(Replay.IsDebug ? TEST_URL : SERVER_URL),
+            wc.UploadString(Replay.IsDebug ? TEST_URL : SERVER_URL,
                 "{\"auth\": \"여기 서버에다가 테러 비스무리한거 하면은 IP밴 때리고 IP추적해서 빠따날립니다.\", \"rpl\":" + data + " }");
         }
         

@@ -162,7 +162,9 @@ namespace Replay.Functions.Saving
                 };
 
                 if (Replay.ReplayOption.CanICollectReplayFile == 1)
-                    Task.Run(()=>SaveReplay.UploadToServer(ReplayUtils.ObjectToJSON(sri)));
+                {
+                    Task.Run(() => SaveReplay.UploadToServer(ReplayUtils.ObjectToJSON(sri)));
+                }
             });
         }
 
@@ -242,6 +244,7 @@ namespace Replay.Functions.Saving
             _states = CustomControllerStates.PlayerControl;
             _isSave = false;
             _tryDeathCamMode = false;
+            GC.Collect();
 
         }
 

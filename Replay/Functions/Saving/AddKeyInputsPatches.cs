@@ -52,11 +52,12 @@ namespace Replay.Functions.Saving
         [HarmonyPrefix]
         public static void HitPatch()
         {
+
+            if (WatchReplay.IsPlaying) return;
             var controller = scrController.instance;
             var planet = controller.chosenplanet;
             var isFreeroam = controller.currFloor.freeroam && !scrController.isGameWorld;
-
-            if (WatchReplay.IsPlaying) return;
+            
             if (!scrController.isGameWorld && !isFreeroam) return;
             if (scrController.instance.currFloor.midSpin) return;
             var keyCode = GetInput();
