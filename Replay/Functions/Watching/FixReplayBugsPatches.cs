@@ -41,14 +41,30 @@ namespace Replay.Functions.Watching
         
         [HarmonyPatch(typeof(scrController), "PlayerControl_Enter")]
         [HarmonyPrefix]
-        public static void FixSongNotPlayingBugPatch()
+        public static void FixFreeroam()
         {
             if (scrConductor.instance.song != null)
-                scrConductor.instance.song.volume = 1;
-
+            {
+                if(scrConductor.instance.song.volume == 0)
+                    scrConductor.instance.song.volume = 1;
+            }
+            
             if (WatchReplay.IsPlaying)
                 FixFreeroamBug();
         }
+        
+        
+        [HarmonyPatch(typeof(scrConductor), "StartMusicCo")]
+        [HarmonyPostfix]
+        public static void FixSongNotPlayingBugPatch()
+        {
+            if (scrConductor.instance.song != null)
+            {
+                if(scrConductor.instance.song.volume == 0)
+                    scrConductor.instance.song.volume = 1;
+            }
+        }
+
 
         [HarmonyPatch(typeof(SoundEffect), "Awake")]
         [HarmonyPrefix]
