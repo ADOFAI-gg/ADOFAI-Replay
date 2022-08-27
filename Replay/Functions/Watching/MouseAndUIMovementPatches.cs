@@ -41,7 +41,6 @@ namespace Replay.Functions.Watching
                 _toolY = _replayToolUI.anchoredPosition.y;
             }
 
-            
             _toolTween?.Kill();
             _meterTween?.Kill();
             
@@ -68,7 +67,7 @@ namespace Replay.Functions.Watching
         public static void ShowCursor()
         {
             if (!WatchReplay.IsPlaying) return;
-            Cursor.visible = true;
+            Cursor.visible = !_hided;
         }
         
         [HarmonyPatch(typeof(PauseMenu), "OnEnable")]
@@ -76,8 +75,10 @@ namespace Replay.Functions.Watching
         public static void ShowCursor2()
         {
             if (!WatchReplay.IsPlaying) return;
-            ShowUI(true);
+            Cursor.visible = true;
         }
+        
+
 
         [HarmonyPatch(typeof(scrConductor), "Update")]
         [HarmonyPrefix]
