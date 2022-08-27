@@ -160,6 +160,7 @@ namespace Replay.Functions.Menu
             _index = 0;
             Cursor.visible = true;
 
+            GCS.speedTrialMode = false;
             GCS.currentSpeedTrial = replayInfo.Speed;
             GCS.nextSpeedRun = replayInfo.Speed;
             WatchReplay.PatchedPitch = GCS.currentSpeedTrial;

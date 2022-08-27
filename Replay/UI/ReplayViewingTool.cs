@@ -72,15 +72,16 @@ namespace Replay.UI
                 {
                     beforeDistance = distnace;
                     distnace = Math.Abs(time - currentTime);
-                    chooseSeqID = n;
+                    chooseSeqID = floors[n].seqID;
                 }
                 if (beforeDistance < Math.Abs(time - currentTime)) break;
             }
+            
 
             if (startTile > chooseSeqID)
                 chooseSeqID = startTile;
-            if (endTile < chooseSeqID)
-                chooseSeqID = endTile;
+            if (endTile <= chooseSeqID)
+                chooseSeqID = endTile-1;
 
             return chooseSeqID;
         }
