@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using DG.Tweening;
 using Discord;
 using HarmonyLib;
@@ -123,10 +125,11 @@ namespace Replay.Functions.Menu
             if (CheckInvalidIndex())
                 return;
             
-            _replayPlanetHit = true;
 
             var r = _playingReplayInfo.Tiles[_index];
             var angle = GetAngle();
+            //Replay.Log("111", _index, _playingReplayInfo.Tiles[_index].SeqID, scrController.instance.currentSeqID, angle, scrController.instance.chosenplanet.angle, scrController.instance.isCW, _playingReplayInfo.Tiles[_index].Hitmargin);
+
 
             scrController.instance.consecMultipressCounter = 0;
             if (_playingReplayInfo.Tiles[_index].SeqID == scrController.instance.currentSeqID &&
@@ -136,10 +139,12 @@ namespace Replay.Functions.Menu
                 scrController.instance.chosenplanet.cachedAngle = angle;
             }
 
-            scrController.instance.noFailInfiniteMargin = r.NoFailHit;
+            _replayPlanetHit = true;
+            scrController.instance.noFailInfiniteMargin = r.NoFailHit; 
             scrController.instance.Hit();
             scrController.instance.noFailInfiniteMargin = false;
-
+            _replayPlanetHit = false;
+            
             var k = _playingReplayInfo.Tiles[_index].Key;
             KeyboradHook.OnKeyPressed(k);
             var tween = DOVirtual.DelayedCall(
@@ -148,6 +153,7 @@ namespace Replay.Functions.Menu
             tween.OnComplete(() => { _requestedHold.Remove(tween); });
             tween.OnKill(() => { KeyboradHook.OnKeyReleased(k); });
             _index++;
+            
         }
 
 
@@ -166,6 +172,8 @@ namespace Replay.Functions.Menu
             GCS.currentSpeedTrial = replayInfo.Speed;
             GCS.nextSpeedRun = replayInfo.Speed;
             WatchReplay.PatchedPitch = GCS.currentSpeedTrial;
+            
+
 
             //DisableNoStopMod();
         }
@@ -201,12 +209,15 @@ namespace Replay.Functions.Menu
 
             var planet = scrController.instance.chosenplanet;
 
-            if (scrController.instance.currentSeqID > _playingReplayInfo.Tiles[_index].SeqID) return true;
+            //if (scrController.instance.currentSeqID > _playingReplayInfo.Tiles[_index].SeqID) return true;
+            
 
             var angle = GetAngle();
             var angleOverd = (scrController.instance.isCW && planet.angle >= angle) ||
                              (!scrController.instance.isCW && planet.angle <= angle);
             var validTile = scrController.instance.currentSeqID == _playingReplayInfo.Tiles[_index].SeqID;
+
+           // Replay.Log(_index, _playingReplayInfo.Tiles[_index].SeqID, scrController.instance.currentSeqID, angle, planet.angle, scrController.instance.isCW, _playingReplayInfo.Tiles[_index].Hitmargin);
 
             if (scrController.instance.currFloor.freeroam)
             {
@@ -246,7 +257,6 @@ namespace Replay.Functions.Menu
         [HarmonyPostfix]
         public static void SetStartAtPatch()
         {
-
             _paused = false;
             if (!WatchReplay.IsPlaying) return;
             if (!_playingReplayInfo.IsOfficialLevel) return;
@@ -254,6 +264,7 @@ namespace Replay.Functions.Menu
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
         }
+        
 
 
         [HarmonyPatch(typeof(CustomLevel), "Play")]
@@ -297,6 +308,8 @@ namespace Replay.Functions.Menu
             scrController.instance.paused = true;
             scrController.instance.enabled = false;
             scrController.instance.paused = true;
+            
+            
             
             WatchReplay.DisableAllEffects();
 
@@ -344,8 +357,12 @@ namespace Replay.Functions.Menu
         {
             if (!WatchReplay.IsPlaying) return true;
             if (!scrController.isGameWorld) return true;
+            if (WatchReplay.IsPaused || WatchReplay.IsPlanetDied)
+                return false;
+            
             if (scrLevelMaker.instance.listFloors.Count - 1 == scrController.instance.currentSeqID)
                 return false;
+            
             return true;
         }
         
@@ -421,9 +438,10 @@ namespace Replay.Functions.Menu
                 return;
             }
 
-            
+            scrController.instance.noFail = true;
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
+            scrController.instance.mistakesManager.Reset();
             
             Cursor.visible = true;
 
@@ -478,12 +496,16 @@ namespace Replay.Functions.Menu
         public static bool NoFailPatch()
         {
             if (!WatchReplay.IsPlaying) return true;
-            if (_playingReplayInfo.EndTile >= scrController.instance.currentSeqID) return false;
-            
-            WatchReplay.IsPlanetDied = true;
-            scrController.instance.audioPaused = true;
-            Time.timeScale = 0;
-            scrController.instance.ChangeState(States.None);
+            if (_playingReplayInfo.EndTile <= scrController.instance.currentSeqID)
+            {
+
+                WatchReplay.IsPlanetDied = true;
+                scrController.instance.audioPaused = true;
+                Time.timeScale = 0;
+                scrController.instance.ChangeState(States.None);
+                return false;
+            }
+
             return false;
         }
 
@@ -529,25 +551,56 @@ namespace Replay.Functions.Menu
             if (!WatchReplay.IsPlaying) return;
             Reset();
         }
+
+        /*
+
+        [HarmonyPatch(typeof(scrPlanet), "MoveToNextFloor")]
+        public static class bsdfsdfsdfool
+        {
+            public static bool Prefix()
+            {
+                if (!WatchReplay.IsPlaying) return true;
+                if (scrMisc.IsValidHit(_playingReplayInfo.Tiles[_index].Hitmargin))
+                    return true;
+                return false;
+            }
+            
+
+        }*/
         
 
 
-        [HarmonyPatch(typeof(scrController), "Hit")]
-        [HarmonyPrefix]
-        public static bool IgnoreKeystrokesPatch()
-        {
-            scrController.instance.responsive = true;
-            scrController.instance.paused = false;
-            RDInput.SetMapping("Gameplay");
-            if (!WatchReplay.IsPlaying ||
-                scrController.instance.currentState != States.PlayerControl) return true;
 
-            scrController.instance.keyTimes.Clear();
-            if (scrController.instance.currFloor.midSpin) return true;
-            if (!_replayPlanetHit)
-                return false;
-            _replayPlanetHit = false;
-            return true;
+        [HarmonyPatch(typeof(scrController), "Hit")]
+        public static class IgnoreKeystrokesPatch
+        {
+            public static bool Prefix()
+            {
+                scrController.instance.responsive = true;
+                scrController.instance.paused = false;
+                RDInput.SetMapping("Gameplay");
+                
+                if (!WatchReplay.IsPlaying) return true;
+                scrController.instance.keyTimes.Clear();
+                
+                if (scrController.instance.currFloor.midSpin) return true;
+                if (!_replayPlanetHit) return false;
+                return true;
+            }
+
+            
+        }
+        
+        
+        [HarmonyPatch(typeof(scrMisc), "GetHitMargin")]
+        public static class GetHitMargin
+        {
+            public static void Postfix(ref HitMargin __result)
+            {
+                if (!WatchReplay.IsPlaying) return;
+                if(_replayPlanetHit)
+                    __result = _playingReplayInfo.Tiles[_index].Hitmargin;
+            }
         }
         
 
@@ -559,10 +612,12 @@ namespace Replay.Functions.Menu
             if (scrController.instance.midspinInfiniteMargin || scrController.instance.currFloor.midSpin) return;
             var angle = GetAngle();
 
-            __instance.angle = angle;
-            __instance.cachedAngle = angle;
+            if(!scrController.instance.currFloor.midSpin)
+            {
+                __instance.angle = angle;
+                __instance.cachedAngle = angle;
+            }
         }
-        
         
 
 

@@ -60,6 +60,7 @@ namespace Replay.Functions.Saving
             
             if (!scrController.isGameWorld && !isFreeroam) return;
             if (scrController.instance.currFloor.midSpin) return;
+            //if (scrController.instance.noFailInfiniteMargin) return; 
             var keyCode = GetInput();
 
             var t = new TileInfo
@@ -69,14 +70,14 @@ namespace Replay.Functions.Saving
                 Key = keyCode,
                 NoFailHit = scrController.instance.noFailInfiniteMargin,
                 HeldTime = Time.unscaledDeltaTime,
+                Hitmargin = scrMisc.GetHitMargin((float)planet.angle, (float)planet.targetExitAngle,
+                    planet.controller.isCW, (float)(planet.conductor.bpm * planet.controller.speed),
+                    planet.conductor.song.pitch),
             };
             _heldPressInfo[keyCode] = t;
             if (Replay.ReplayOption.CanICollectReplayFile == 1)
             {
                 t.HitTime = Time.timeAsDouble - _startTime;
-                t.Hitmargin = scrMisc.GetHitMargin((float)planet.angle, (float)planet.targetExitAngle,
-                    planet.controller.isCW, (float)(planet.conductor.bpm * planet.controller.speed),
-                    planet.conductor.song.pitch);
                 t.RealHitAngle = planet.angle;
                 t.TargetAngle = Math.Abs(planet.targetExitAngle) > 0.001? planet.targetExitAngle:0;
                 t.IsFreeroam = controller.currFloor.freeroam;

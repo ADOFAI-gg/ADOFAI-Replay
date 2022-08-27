@@ -91,8 +91,11 @@ namespace Replay.Functions.Watching
                 _toolY = _replayToolUI.anchoredPosition.y;
             }
 
-       
-            if (Math.Abs(Input.GetAxis("Mouse X")) > 0.5f || Math.Abs(Input.GetAxis("Mouse Y")) > 0.5f || WatchReplay.IsPaused ||(ReplayBasePatches._playingReplayInfo.EndTile - 1 < scrController.instance.currentSeqID))
+
+            if (Math.Abs(Input.GetAxis("Mouse X")) > 0.5f || Math.Abs(Input.GetAxis("Mouse Y")) > 0.5f ||
+                WatchReplay.IsPaused ||
+                (ReplayBasePatches._playingReplayInfo.EndTile - 1 < scrController.instance.currentSeqID) ||
+                Input.GetMouseButtonDown(0))
             {
                 ShowUI();
                 _showingCursorTime = 0;
