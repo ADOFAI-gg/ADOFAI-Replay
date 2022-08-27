@@ -18,7 +18,7 @@ Replay Mod is a mod where you can save your play and watch it again at any time.
 
 ![save](https://github.com/NoBrain0917/Replay/blob/master/Resource/save.png?raw=true)
 
-F11키를 눌러 **리플레이를 저장**하고, 메인화면에서 리플레이 메뉴에 들어가 리플레이를 볼 수 있습니다. ( 또는 Ctrl + R )
+F11키를 눌러 **리플레이를 저장**하고, 메인화면에서 리플레이 메뉴에 들어가 리플레이를 볼 수 있습니다. ( 또는 Ctrl + Shift + R )
 
 그럼 F9키도 리플레이 저장인가? 싶지만 F9키를 누르면 죽기 20초전부터 리플레이를 즉시 보여줍니다.    
 **리플레이를 저장하지 않고**, 내가 어떻게 죽었는지, 어떤부분에서 죽었는지 알 수 있습니다. **( 죽었을때만 볼 수 있음, 깰때 X )** 
@@ -26,7 +26,7 @@ F11키를 눌러 **리플레이를 저장**하고, 메인화면에서 리플레�
 = F11은 일반적인 리플레이, F9는 데스캠(?)
 
 By default, press F9 and F11 when you die while playing a level or when you complete a level.
-Press F11 to **save the replay** and view the replay by entering the replay menu on the main screen. ( or Ctrl + R )
+Press F11 to **save the replay** and view the replay by entering the replay menu on the main screen. ( or Ctrl + Shift + R )
 
 So is the F9 key also saving replays? But if you press F9, the replay will be shown immediately from 20 seconds before death.
 **Without saving the replay**, you can see how I died and where I died. **( Only when you die in a level )**
