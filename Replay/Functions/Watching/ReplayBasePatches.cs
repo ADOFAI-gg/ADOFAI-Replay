@@ -28,13 +28,13 @@ namespace Replay.Functions.Menu
         private static bool _replayPlanetHit;
         private static bool _beforeNoStopModEnabled;
         private static bool _dontDie;
-        private static bool _paused;
         private static int _index;
         private static UnityModManager.ModEntry _noStopModModEntry;
         
 
         private static List<Tween> _requestedHold = new List<Tween>();
         
+        internal static bool _paused;
         internal static bool _progressDisplayerCancel;
         internal static ReplayInfo _playingReplayInfo;
 
@@ -90,6 +90,7 @@ namespace Replay.Functions.Menu
             }
 
             KeyboradHook.OnEndInputs();
+            GC.Collect();
 
             /*
             if (!Replay.IsUsingNoStopMod) return;
@@ -121,6 +122,7 @@ namespace Replay.Functions.Menu
         {
             if (CheckInvalidIndex())
                 return;
+            
             _replayPlanetHit = true;
 
             var r = _playingReplayInfo.Tiles[_index];
@@ -245,7 +247,7 @@ namespace Replay.Functions.Menu
         public static void SetStartAtPatch()
         {
 
-
+            _paused = false;
             if (!WatchReplay.IsPlaying) return;
             if (!_playingReplayInfo.IsOfficialLevel) return;
             GCS.checkpointNum = WatchReplay.OfficialStartAt;
@@ -346,56 +348,7 @@ namespace Replay.Functions.Menu
                 return false;
             return true;
         }
-
-
-        [HarmonyPatch(typeof(scrController), "TogglePauseGame")]
-        [HarmonyPrefix]
-        public static bool TogglePauseGamePatch(ref bool __result, int ___frameStart, ref int ___lastTogglePauseFrame)
-        {
-            if (!WatchReplay.IsPlaying) return true;
-            var controller = scrController.instance;
-            AudioManager.pauseGameSounds = false;
-            if (GCS.standaloneLevelMode && (Time.frameCount - ___frameStart < 4 ||
-                                            (ADOBase.customLevel != null && ADOBase.customLevel.isLoading)))
-            {
-                __result = _paused;
-                return false;
-            }
-
-            if (!ADOBase.isEditingLevel && scrUIController.instance.transitionPanel.gameObject.activeSelf)
-            {
-                __result = _paused;
-                return false;
-            }
-            
-            if (GCS.d_boothDisablePossibleMessUpButtons || GCS.webVersion)
-                controller.QuitToMainMenu();
-
-            _paused = !_paused;
-
-            controller.paused = !WatchReplay.IsPlaying && _paused;
-            ___lastTogglePauseFrame = 0;
-            controller.audioPaused = _paused;
-            controller.enabled = WatchReplay.IsPlaying || !_paused;
-            Time.timeScale = (_paused ? 0f : 1f);
-            
-            if (scnEditor.instance == null || GCS.standaloneLevelMode)
-            {
-                if (_paused)
-                {
-                    controller.takeScreenshot.ShowPauseMenu(false);
-                }
-                else
-                {
-                    typeof(scrController).GetMethod("CheckForAudioOutputChange", AccessTools.all)
-                        .Invoke(controller, new object[]{});
-                    controller.pauseMenu.Hide();
-                }
-            }
-
-            __result = _paused;
-            return false;
-        }
+        
 
         [HarmonyPatch(typeof(scrPlanet), "Update_RefreshAngles")]
         [HarmonyPrefix]
@@ -508,6 +461,7 @@ namespace Replay.Functions.Menu
         [HarmonyPostfix]
         public static void PlanetColorChangePatch()
         {
+            _paused = false;
             if (!WatchReplay.IsPlaying) return;
 
             var planet = scrController.instance.chosenplanet;
@@ -524,8 +478,8 @@ namespace Replay.Functions.Menu
         public static bool NoFailPatch()
         {
             if (!WatchReplay.IsPlaying) return true;
-            if (_playingReplayInfo.EndTile - 1 > scrController.instance.currentSeqID) return false;
-
+            if (_playingReplayInfo.EndTile >= scrController.instance.currentSeqID) return false;
+            
             WatchReplay.IsPlanetDied = true;
             scrController.instance.audioPaused = true;
             Time.timeScale = 0;
@@ -582,6 +536,9 @@ namespace Replay.Functions.Menu
         [HarmonyPrefix]
         public static bool IgnoreKeystrokesPatch()
         {
+            scrController.instance.responsive = true;
+            scrController.instance.paused = false;
+            RDInput.SetMapping("Gameplay");
             if (!WatchReplay.IsPlaying ||
                 scrController.instance.currentState != States.PlayerControl) return true;
 
