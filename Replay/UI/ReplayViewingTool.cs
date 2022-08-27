@@ -19,6 +19,7 @@ namespace Replay.UI
         private static ReplayInfo _playingReplayInfo;
         private static int _goBackStack;
         private static bool _listenerAdded;
+        private static GameObject _audioSources;
         
         public static Image PauseImage;
 
@@ -26,9 +27,10 @@ namespace Replay.UI
         {
             if (rpl == _playingReplayInfo) return;
             _playingReplayInfo = rpl;
-            
+
+            _audioSources = GameObject.Find("AudioSource Container");
             PauseImage.sprite = ReplayAssets.ResumeImage;
-            
+
             ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
             ReplayUI.Instance.InGameUI.gameObject.SetActive(true);
             ReplayUI.Instance.EndTime.text = ReplayUtils.Ms2time((_playingReplayInfo.PlayTime));
@@ -91,7 +93,9 @@ namespace Replay.UI
         public static void TogglePause()
         {
             if (scrController.instance.pauseMenu.gameObject.activeSelf) return;
+            if (WatchReplay.IsResetLevel) return;
             WatchReplay.IsPaused = !WatchReplay.IsPaused;
+
 
             if (WatchReplay.IsPaused)
             {
@@ -106,6 +110,8 @@ namespace Replay.UI
                 if (WatchReplay.IsPlanetDied) return;
                 scrController.instance.audioPaused = false;
                 Time.timeScale = 1;
+                scrConductor.instance.StartCoroutine("DesyncFix");
+
             }
         }
         
@@ -117,6 +123,7 @@ namespace Replay.UI
             if (_playingReplayInfo == null) return;
             if (ReplayUI.Instance == null) return;
             if (ReplayUI.Instance.PositionSlider == null) return;
+            if (!ReplayUI.Instance.InGameUI.gameObject.activeSelf) return;
 
             var startTime = scrLevelMaker.instance.listFloors[_playingReplayInfo.StartTile].entryTime;
             var cd = GCS.checkpointNum == 0
@@ -253,6 +260,9 @@ namespace Replay.UI
         // Pitch Up Down
         public static void PitchUp()
         {
+            if (scrController.instance.pauseMenu.gameObject.activeSelf) return;
+            if (WatchReplay.IsResetLevel) return;
+            
             GCS.currentSpeedTrial += 0.1f;
             GCS.nextSpeedRun = GCS.currentSpeedTrial;
             _valueChanging = true;
@@ -281,6 +291,9 @@ namespace Replay.UI
         
         public static void PitchDown()
         {
+            if (scrController.instance.pauseMenu.gameObject.activeSelf) return;
+            if (WatchReplay.IsResetLevel) return;
+            
             GCS.currentSpeedTrial -= 0.1f;
             GCS.nextSpeedRun = GCS.currentSpeedTrial;
             _valueChanging = true;
