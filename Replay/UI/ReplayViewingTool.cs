@@ -19,16 +19,14 @@ namespace Replay.UI
         private static ReplayInfo _playingReplayInfo;
         private static int _goBackStack;
         private static bool _listenerAdded;
-        private static GameObject _audioSources;
-        
+
         public static Image PauseImage;
 
         public static void Init(ReplayInfo rpl)
         {
             if (rpl == _playingReplayInfo) return;
             _playingReplayInfo = rpl;
-
-            _audioSources = GameObject.Find("AudioSource Container");
+            
             PauseImage.sprite = ReplayAssets.ResumeImage;
 
             ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
