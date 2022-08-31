@@ -36,6 +36,7 @@ namespace Replay
         internal static UnityModManager.ModEntry unityModEntry;
         
         public static bool IsDebug = true;
+        public static bool IsAlpha;
         public static KeyCode[] AllKeyCodes;
         public static bool IsUsingNoStopMod;
         public static ReplayOption ReplayOption = new ReplayOption();
@@ -47,9 +48,19 @@ namespace Replay
         
         public static void Setup(UnityModManager.ModEntry modEntry)
         {
+            try
+            {
+                SceneManager.GetSceneByName("scnLevelSelect");
+                IsAlpha = true;
+            }
+            catch
+            {
+                IsAlpha = false;
+            }
+
             ReplayOption = UnityModManager.ModSettings.Load<ReplayOption>(modEntry);
-            
             _replayHarmony ??= new Harmony(modEntry.Info.Id);
+            
 
             
             /*

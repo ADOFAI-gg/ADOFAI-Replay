@@ -128,6 +128,7 @@ namespace Replay.Functions.Menu
             }
             ReplayViewingTool.UpdateLayout();
             scnReplayIntro.scnReplayIntro.OnStart = ReplaySelectScene.Awake;
+            scnReplayIntro.scnReplayIntro.OnQuit = ReplaySelectScene.OnQuit;
 
             var args = Environment.GetCommandLineArgs();
             if (args.Length > 1)

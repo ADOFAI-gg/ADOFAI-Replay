@@ -8,6 +8,7 @@ using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
 using Replay.Functions.Watching;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Replay.UI
 {
@@ -97,6 +98,11 @@ namespace Replay.UI
 
             }
         }
-        
+
+        public static void OnQuit()
+        {
+            ReplayUIUtils.DoSwipe(() => { SceneManager.LoadScene(Replay.IsAlpha ? "scnLevelSelect" : "scnNewIntro"); });
+        }
+
     }
 }
