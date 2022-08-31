@@ -111,10 +111,10 @@ namespace Replay.Functions.Menu
         // Planet angle when pressed by player
         private static double GetAngle()
         {
-            if (CheckInvalidIndex())
-                return Math.PI;
-
             var planet = scrController.instance.chosenplanet;
+            if (CheckInvalidIndex())
+                return planet.targetExitAngle;
+            
             var tileInfo = _playingReplayInfo.Tiles[_index];
             return tileInfo.HitAngleRatio + planet.targetExitAngle;
         }
@@ -124,27 +124,33 @@ namespace Replay.Functions.Menu
         {
             if (CheckInvalidIndex())
                 return;
-            
 
             var r = _playingReplayInfo.Tiles[_index];
             var angle = GetAngle();
             //Replay.Log("111", _index, _playingReplayInfo.Tiles[_index].SeqID, scrController.instance.currentSeqID, angle, scrController.instance.chosenplanet.angle, scrController.instance.isCW, _playingReplayInfo.Tiles[_index].Hitmargin);
 
 
+
             scrController.instance.consecMultipressCounter = 0;
-            if (_playingReplayInfo.Tiles[_index].SeqID == scrController.instance.currentSeqID &&
+            //scrController.instance.failbar.multipressCounter = r.RealHitMargin == HitMargin.Multipress ? 1.1f : 0;
+            scrController.instance.failbar.overloadCounter = r.RealHitMargin == HitMargin.FailOverload ? 1.1f : 0;
+
+            if (r.SeqID == scrController.instance.currentSeqID &&
                 !scrController.instance.currFloor.midSpin)
             {
                 scrController.instance.chosenplanet.angle = angle;
                 scrController.instance.chosenplanet.cachedAngle = angle;
             }
 
-            _replayPlanetHit = true;
-            scrController.instance.noFailInfiniteMargin = r.NoFailHit; 
-            scrController.instance.Hit();
-            scrController.instance.noFailInfiniteMargin = false;
-            _replayPlanetHit = false;
-            
+            if (scrController.instance.currentSeqID == r.SeqID)
+            {
+                _replayPlanetHit = true;
+                scrController.instance.noFailInfiniteMargin = r.NoFailHit;
+                scrController.instance.Hit();
+                scrController.instance.noFailInfiniteMargin = false;
+                _replayPlanetHit = false;
+            }
+
             var k = _playingReplayInfo.Tiles[_index].Key;
             KeyboradHook.OnKeyPressed(k);
             var tween = DOVirtual.DelayedCall(
@@ -153,7 +159,6 @@ namespace Replay.Functions.Menu
             tween.OnComplete(() => { _requestedHold.Remove(tween); });
             tween.OnKill(() => { KeyboradHook.OnKeyReleased(k); });
             _index++;
-            
         }
 
 
@@ -203,11 +208,15 @@ namespace Replay.Functions.Menu
                 return false;
             if (WatchReplay.IsPaused) return false;
 
+            if (_index >= _playingReplayInfo.Tiles.Length && _playingReplayInfo.EndTile > scrController.instance.currentSeqID)
+                return true;
+
             if (CheckInvalidIndex())
                 return false;
-            
+
 
             var planet = scrController.instance.chosenplanet;
+            //Replay.Log(scrController.instance.currentSeqID, _index, _playingReplayInfo.Tiles[_index].SeqID, GetAngle(), planet.angle, planet.controller.isCW);
 
             //if (scrController.instance.currentSeqID > _playingReplayInfo.Tiles[_index].SeqID) return true;
             
@@ -217,7 +226,7 @@ namespace Replay.Functions.Menu
                              (!scrController.instance.isCW && planet.angle <= angle);
             var validTile = scrController.instance.currentSeqID == _playingReplayInfo.Tiles[_index].SeqID;
 
-           // Replay.Log(_index, _playingReplayInfo.Tiles[_index].SeqID, scrController.instance.currentSeqID, angle, planet.angle, scrController.instance.isCW, _playingReplayInfo.Tiles[_index].Hitmargin);
+           //Replay.Log(_index, _playingReplayInfo.Tiles[_index].SeqID, scrController.instance.currentSeqID, angle, planet.angle, scrController.instance.isCW, _playingReplayInfo.Tiles[_index].Hitmargin);
 
             if (scrController.instance.currFloor.freeroam)
             {
@@ -438,7 +447,7 @@ namespace Replay.Functions.Menu
                 return;
             }
 
-            scrController.instance.noFail = true;
+            scrController.instance.noFail = false;
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
             scrController.instance.mistakesManager.Reset();
@@ -493,7 +502,7 @@ namespace Replay.Functions.Menu
 
         [HarmonyPatch(typeof(scrController), "FailAction")]
         [HarmonyPrefix]
-        public static bool NoFailPatch()
+        public static bool NoFailPatch(bool overload)
         {
             if (!WatchReplay.IsPlaying) return true;
             if (_playingReplayInfo.EndTile <= scrController.instance.currentSeqID)
@@ -505,8 +514,18 @@ namespace Replay.Functions.Menu
                 scrController.instance.ChangeState(States.None);
                 return false;
             }
-
+            
             return false;
+        }
+        
+        [HarmonyPatch(typeof(scrController), "OnLandOnPortal")]
+        [HarmonyPrefix]
+        public static void ShowNoFail()
+        {
+            if (!WatchReplay.IsPlaying) return;
+            if (!scrController.isGameWorld) return;
+
+            scrController.instance.noFail = true;
         }
 
 
@@ -582,14 +601,18 @@ namespace Replay.Functions.Menu
                 
                 if (!WatchReplay.IsPlaying) return true;
                 scrController.instance.keyTimes.Clear();
-                
+
+                var planet = scrController.instance.chosenplanet;
+
                 if (scrController.instance.currFloor.midSpin) return true;
                 if (!_replayPlanetHit) return false;
                 return true;
             }
+            
 
             
         }
+        
         
         
         [HarmonyPatch(typeof(scrMisc), "GetHitMargin")]
@@ -609,13 +632,14 @@ namespace Replay.Functions.Menu
         public static void SetForceAnglePatch(scrPlanet __instance)
         {
             if (!WatchReplay.IsPlaying) return;
-            if (scrController.instance.midspinInfiniteMargin || scrController.instance.currFloor.midSpin) return;
             var angle = GetAngle();
 
-            if(!scrController.instance.currFloor.midSpin)
+            
+            if (_playingReplayInfo.Tiles[_index].SeqID == scrController.instance.currentSeqID &&
+                !scrController.instance.currFloor.midSpin)
             {
-                __instance.angle = angle;
-                __instance.cachedAngle = angle;
+                scrController.instance.chosenplanet.angle = angle;
+                scrController.instance.chosenplanet.cachedAngle = angle;
             }
         }
         

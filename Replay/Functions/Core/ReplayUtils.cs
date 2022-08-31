@@ -44,6 +44,13 @@ namespace Replay.Functions.Core
             if (index < 0) return lists[0];
             return lists[index];
         }
+        
+        public static scrFloor GetSafeList(List<scrFloor> lists, int index)
+        {
+            if (lists.Count - 1 < index) return lists[lists.Count - 1];
+            if (index < 0) return lists[0];
+            return lists[index];
+        }
 
         public static List<UnityModManager.ModEntry> GetKeyviewers()
         {
@@ -171,7 +178,9 @@ namespace Replay.Functions.Core
             {
                 var stream = new FileStream(replayPath, FileMode.Open);
                 var deserializer = new BinaryFormatter();
-                return (ReplayInfo)deserializer.Deserialize(stream);
+                var result = (ReplayInfo)deserializer.Deserialize(stream);
+                stream.Close();
+                return result;
             }
             catch
             {

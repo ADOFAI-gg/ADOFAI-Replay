@@ -14,6 +14,7 @@ namespace Replay.Functions.Saving
         private static Dictionary<KeyCode, TileInfo> _heldPressInfo = new Dictionary<KeyCode, TileInfo>();
         private static float _lastFrame;
         private static float _startTime;
+        private static KeyCode _lastKeyCode;
         
         // All key inputs
         private static KeyCode GetInput()
@@ -48,11 +49,18 @@ namespace Replay.Functions.Saving
             _startTime = Time.time;
         }
         
+        [HarmonyPatch(typeof(scrController), "ShowHitText")]
+        [HarmonyPrefix]
+        public static void SetRealHitMargin(HitMargin hitMargin)
+        {
+            if (WatchReplay.IsPlaying) return;
+            _heldPressInfo[_lastKeyCode].RealHitMargin = hitMargin;
+        }
+        
         [HarmonyPatch(typeof(scrController), "Hit")]
         [HarmonyPrefix]
         public static void HitPatch()
         {
-
             if (WatchReplay.IsPlaying) return;
             var controller = scrController.instance;
             var planet = controller.chosenplanet;
@@ -61,20 +69,20 @@ namespace Replay.Functions.Saving
             if (!scrController.isGameWorld && !isFreeroam) return;
             if (scrController.instance.currFloor.midSpin) return;
             //if (scrController.instance.noFailInfiniteMargin) return; 
-            var keyCode = GetInput();
+            _lastKeyCode = GetInput();
 
             var t = new TileInfo
             {
                 HitAngleRatio = planet.angle - planet.targetExitAngle,
                 SeqID = controller.currentSeqID,
-                Key = keyCode,
+                Key = _lastKeyCode,
                 NoFailHit = scrController.instance.noFailInfiniteMargin,
                 HeldTime = Time.unscaledDeltaTime,
                 Hitmargin = scrMisc.GetHitMargin((float)planet.angle, (float)planet.targetExitAngle,
                     planet.controller.isCW, (float)(planet.conductor.bpm * planet.controller.speed),
                     planet.conductor.song.pitch),
             };
-            _heldPressInfo[keyCode] = t;
+            _heldPressInfo[_lastKeyCode] = t;
             if (Replay.ReplayOption.CanICollectReplayFile == 1)
             {
                 t.HitTime = Time.timeAsDouble - _startTime;

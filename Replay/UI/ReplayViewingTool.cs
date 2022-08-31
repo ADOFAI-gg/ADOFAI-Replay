@@ -145,7 +145,7 @@ namespace Replay.UI
             if (!_isEditingTime && !_valueChanging)
                 ReplayUI.Instance.PositionSlider.value =(float)(time/((_playingReplayInfo.PlayTime*0.001f)-cd));
             if ((_playingReplayInfo.PlayTime * 0.001f) - cd > time)
-                ReplayUI.Instance.CurrentTime.text = ReplayUtils.Ms2time((long)(time+cd)*1000);
+                    ReplayUI.Instance.CurrentTime.text = ReplayUtils.Ms2time((long)(time+cd)*1000);
         }
 
         
@@ -211,13 +211,16 @@ namespace Replay.UI
         public static void OnValueChange(float value)
         {
             if (scrController.instance.pauseMenu.gameObject.activeSelf) return;
+
             if (!_isEditingTime) return;
             if (_sliderUpdate != null)
             {
                 _sliderUpdate.Kill();
                 _sliderUpdate = null;
             }
+            
 
+            
             _valueChanging = true;
             _sliderUpdate = DOVirtual.DelayedCall(0.3f, () =>
             {
@@ -233,6 +236,7 @@ namespace Replay.UI
                 var startTime = scrLevelMaker.instance.listFloors[_playingReplayInfo.StartTile].entryTime;
                 var endTime = scrLevelMaker.instance.listFloors[_playingReplayInfo.EndTile].entryTime;
                 var currentTime = (endTime - startTime) * value;
+                
                 var seqID = FindFloorBySecond(currentTime, _playingReplayInfo.StartTile, _playingReplayInfo.EndTile);
                 
                 ReplayBasePatches.ReplayStartAt(seqID);

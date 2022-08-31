@@ -12,9 +12,10 @@ namespace Replay.Functions.Core.Types
         public bool NoFailHit;
         public KeyCode Key;
         public float HeldTime;
+        public HitMargin RealHitMargin;
+        public HitMargin Hitmargin;
 
         //collect to server only
-        public HitMargin Hitmargin;
         public bool IsFreeroam;
         public int RelativeFloorAngle;
         public double TargetAngle;

@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
+using Replay.Functions.Core;
 using Replay.Functions.Menu;
+using UnityEngine;
 
 namespace Replay.Functions.Watching
 {
@@ -9,12 +11,35 @@ namespace Replay.Functions.Watching
         // Fix Tile Glow Bug
         internal static void SetTileGlow()
         {
+            // 알파 업데이트가 정식이 되면 꼭 바꿀 것!!
+            // 성능 이슈!!!!!!!!
+            
+            var floors = scrLevelMaker.instance.listFloors;
+            var nextFloor = ReplayUtils.GetSafeList(floors, GCS.checkpointNum + 1);
+            if (nextFloor != null)
+            {
+                var topGlow = (SpriteRenderer)typeof(scrFloor)
+                    .GetField(Replay.IsAlpha ? "topGlow" : "topglow", AccessTools.all)?.GetValue(nextFloor);
+                if (topGlow != null)
+                    if (!topGlow.enabled)
+                    {
+                        return;
+                    }
+            }
+
             for (var n = GCS.checkpointNum; n <= ReplayBasePatches._playingReplayInfo.EndTile; n++)
             {
-                var listFloor = scrLevelMaker.instance.listFloors[n];
-                if ((bool)listFloor.bottomglow)
-                    listFloor.bottomglow.enabled = false;
-                listFloor.topglow.enabled = false;
+                
+                var listFloor = floors[n];
+                var bottomGlow = (SpriteRenderer)typeof(scrFloor)
+                    .GetField(Replay.IsAlpha ? "bottomGlow" : "bottomglow", AccessTools.all)?.GetValue(listFloor);
+                if (bottomGlow != null)
+                    bottomGlow.enabled = false;
+                
+                var topGlow = (SpriteRenderer)typeof(scrFloor)
+                    .GetField(Replay.IsAlpha ? "topGlow" : "topglow", AccessTools.all)?.GetValue(listFloor);
+                if (topGlow != null)
+                    topGlow.enabled = false;
             }
         }
 
@@ -52,6 +77,15 @@ namespace Replay.Functions.Watching
             if (WatchReplay.IsPlaying)
                 FixFreeroamBug();
         }
+        
+        [HarmonyPatch(typeof(scrController), "Checkpoint_Enter")]
+        [HarmonyPrefix]
+        public static void FixTopGlow()
+        {
+            if(WatchReplay.IsPlaying)
+                SetTileGlow();
+        }
+        
         
         
         [HarmonyPatch(typeof(scrConductor), "StartMusicCo")]
