@@ -82,8 +82,10 @@ namespace Replay.Functions.Watching
         [HarmonyPrefix]
         public static void FixTopGlow()
         {
-            if(WatchReplay.IsPlaying)
-                SetTileGlow();
+            if (!WatchReplay.IsPlaying) return;
+            SetTileGlow();
+            WatchReplay.SetPlanetColor(scrController.instance.chosenplanet, ReplayBasePatches._playingReplayInfo);
+            WatchReplay.SetPlanetColor(scrController.instance.chosenplanet.other, ReplayBasePatches._playingReplayInfo);
         }
         
         
