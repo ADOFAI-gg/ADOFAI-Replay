@@ -239,29 +239,8 @@ namespace Replay.Functions.Menu
 
             return scrController.isGameWorld && angleOverd && validTile;
         }
-
-
-        [HarmonyPatch(typeof(PauseMenu), "RefreshLayout")]
-        [HarmonyPostfix]
-        public static void DisableOtherButtonsPatch(ref GeneralPauseButton[] ___pauseButtons)
-        {
-            if (!WatchReplay.IsPlaying) return;
-
-            ___pauseButtons = ___pauseButtons.Where(b =>
-            {
-                if (b is PauseButton button)
-                {
-                    return !(button.rdString == "pauseMenu.restart" || button.rdString == "pauseMenu.practice" ||
-                             button.rdString == "pauseMenu.settings" || button.rdString == "pauseMenu.next" ||
-                             button.rdString == "pauseMenu.previous");
-                }
-
-                return false;
-            }).ToArray();
-
-        }
-
-
+        
+        
         [HarmonyPatch(typeof(scrController), "Awake")]
         [HarmonyPostfix]
         public static void SetStartAtPatch()
@@ -381,7 +360,7 @@ namespace Replay.Functions.Menu
         public static bool PauseAngle()
         {
             if(!WatchReplay.IsPlaying) return true;
-            if (WatchReplay.IsPlanetDied)
+            if (WatchReplay.IsPlanetDied || WatchReplay.IsPaused)
             {
                 scrController.instance.audioPaused = true;
                 return false;
@@ -595,15 +574,16 @@ namespace Replay.Functions.Menu
         {
             public static bool Prefix()
             {
-                scrController.instance.responsive = true;
-                scrController.instance.paused = false;
-                RDInput.SetMapping("Gameplay");
-                
                 if (!WatchReplay.IsPlaying) return true;
+                if (scrMisc.IsValidHit(_playingReplayInfo.Tiles[_index].Hitmargin) ||
+                    scrController.instance.midspinInfiniteMargin || scrController.instance.noFailInfiniteMargin)
+                {
+                    scrController.instance.responsive = true;
+                    scrController.instance.paused = false;
+                    RDInput.SetMapping("Gameplay");
+                }
+
                 scrController.instance.keyTimes.Clear();
-
-                var planet = scrController.instance.chosenplanet;
-
                 if (scrController.instance.currFloor.midSpin) return true;
                 if (!_replayPlanetHit) return false;
                 return true;

@@ -163,7 +163,7 @@ namespace Replay.Functions.Saving
 
                 if (Replay.ReplayOption.CanICollectReplayFile == 1)
                 {
-                    Task.Run(() => SaveReplay.UploadToServer(ReplayUtils.ObjectToJSON(sri)));
+                    Task.Run(() => ServerManager.UploadToServer(ReplayUtils.ObjectToJSON(sri)));
                 }
             });
         }
@@ -191,13 +191,13 @@ namespace Replay.Functions.Saving
             _replayInfo.IsOfficialLevel = official;
             _replayInfo.Path = official ? GCS.sceneToLoad : CustomLevel.instance.levelPath;
             
-            if (string.IsNullOrEmpty(_replayInfo.Path))
+            if (string.IsNullOrEmpty(_replayInfo.Path) && !official)
             {
                 Replay.Log("level path is null");
                 return;
             }
             
-            if (!File.Exists(_replayInfo.Path))
+            if (!File.Exists(_replayInfo.Path) && !official)
             {
                 Replay.Log("level path is null");
                 return;
@@ -258,12 +258,14 @@ namespace Replay.Functions.Saving
             if ((Replay.ReplayOption.saveBySpecifiedKey &&
                  Input.GetKeyDown((KeyCode)Replay.ReplayOption
                      .specifiedKeyCode)) &&
-                (_states == CustomControllerStates.Fail || _states == CustomControllerStates.Won))
+                (_states == CustomControllerStates.Fail || _states == CustomControllerStates.Won) || Input.GetKeyDown(
+                    (KeyCode)Replay.ReplayOption
+                        .specifiedDeathCamKeyCode))
                 return false;
             return true;
         }
 
-        
+
         [HarmonyPatch(typeof(scrController), "Start_Rewind")]
         [HarmonyPostfix]
         public static void LevelSettingPatch()

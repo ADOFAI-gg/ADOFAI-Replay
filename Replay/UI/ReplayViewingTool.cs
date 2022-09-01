@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using DG.Tweening;
 using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
@@ -62,7 +63,7 @@ namespace Replay.UI
             var floors = scrLevelMaker.instance.listFloors;
             var distnace = 999.0;
             var beforeDistance = 999.0;
-            var chooseSeqID = _playingReplayInfo.StartTile;
+            var chooseSeqID = startTile;
             
             for (var n = startTile; n < endTile + 1; n++)
             {
@@ -76,7 +77,7 @@ namespace Replay.UI
                 }
                 if (beforeDistance < Math.Abs(time - currentTime)) break;
             }
-            
+
 
             if (startTile > chooseSeqID)
                 chooseSeqID = startTile;
