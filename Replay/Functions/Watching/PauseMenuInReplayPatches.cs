@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Linq;
+using HarmonyLib;
 using Replay.Functions.Menu;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -41,7 +42,18 @@ namespace Replay.Functions.Watching
                     Time.timeScale = 0;
                 }
             }
+
         }
+        
+        
+        [HarmonyPatch(typeof(PauseMedals), "Init")]
+        [HarmonyPostfix]
+        public static void ShowMedals(PauseMedals __instance)
+        {
+            __instance.gameObject.SetActive(!WatchReplay.IsPlaying);
+        }
+        
+        
         
         [HarmonyPatch(typeof(scrController), "TogglePauseGame")]
         [HarmonyPrefix]
@@ -51,5 +63,27 @@ namespace Replay.Functions.Watching
             scrController.instance.paused = ReplayBasePatches._paused;
             ReplayBasePatches._paused = !ReplayBasePatches._paused;
         }
+        
+        
+        [HarmonyPatch(typeof(PauseMenu), "RefreshLayout")]
+        [HarmonyPostfix]
+        public static void DisableOtherButtonsPatch(ref GeneralPauseButton[] ___pauseButtons)
+        {
+            if (!WatchReplay.IsPlaying) return;
+
+            ___pauseButtons = ___pauseButtons.Where(b =>
+            {
+                if (b is PauseButton button)
+                {
+                    return !(button.rdString == "pauseMenu.restart" || button.rdString == "pauseMenu.practice" ||
+                             button.rdString == "pauseMenu.settings" || button.rdString == "pauseMenu.next" ||
+                             button.rdString == "pauseMenu.previous");
+                }
+
+                return false;
+            }).ToArray();
+
+        }
+        
     }
 }
