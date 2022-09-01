@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Replay.Functions.Core;
@@ -44,10 +45,30 @@ namespace Replay
         public static LocalizedText CurrentLang => _languages.TryGetValue(RDString.language, out var v)
             ? v
             : _languages[SystemLanguage.English];
+
+        static Replay()
+        {
+            var harmony = new Harmony("1.replay.first.patches");
+            var overlayer = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Overlayer");
+            if (overlayer != null)
+            {
+                var originalOverlayer = overlayer.GetType("Overlayer.Patches.StartProgUpdater").GetMethod("Prefix", AccessTools.all);
+                var prefix2 = typeof(NullPointerPreventionPatches).GetMethod("OverlayerSafeNull", AccessTools.all);
+                harmony.Patch(originalOverlayer, prefix: new HarmonyMethod(prefix2));
+            }
+            //Debug.Log(overlayer);
+
+        }
         
         
         public static void Setup(UnityModManager.ModEntry modEntry)
         {
+            /*
+            var overlayer = UnityModManager.FindMod("Overlayer");
+            var index = UnityModManager.modEntries.IndexOf(overlayer);
+            Log(index);*/
+
+            
             try
             {
                 SceneManager.GetSceneByName("scnLevelSelect");
@@ -60,8 +81,6 @@ namespace Replay
 
             ReplayOption = UnityModManager.ModSettings.Load<ReplayOption>(modEntry);
             _replayHarmony ??= new Harmony(modEntry.Info.Id);
-            
-
             
             /*
             
@@ -265,8 +284,12 @@ namespace Replay
             }
             else
             {
-                ReplayBasePatches.Reset();
-                ADOBase.RestartScene();
+                if(WatchReplay.IsPlaying)
+                    ReplayBasePatches.Reset();
+                if (SceneManager.GetActiveScene().name == "scnReplayIntro")
+                    SceneManager.LoadScene(IsAlpha ? "scnLevelSelect" : "scnNewIntro");
+                else
+                    ADOBase.RestartScene();
                 if (scrController.instance != null)
                 {
                     ReplayBasePatches._progressDisplayerCancel = true;
