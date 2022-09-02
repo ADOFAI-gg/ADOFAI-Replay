@@ -18,23 +18,19 @@ Replay Mod is a mod where you can save your play and watch it again at any time.
 
 ![save](https://github.com/NoBrain0917/Replay/blob/master/Resource/save.png?raw=true)
 
-F11키를 눌러 **리플레이를 저장**하고, 메인화면에서 리플레이 메뉴에 들어가 리플레이를 볼 수 있습니다. ( 또는 Ctrl + Shift + R )
+### 일반 리플레이
+ - F11키(변경 가능)를 눌러 **리플레이를 저장**합니다.
+ - 메인화면에서 리플레이 메뉴에 들어가 리플레이를 볼 수 있습니다. (또는 Ctrl + Shift + R)
 
-그럼 F9키도 리플레이 저장인가? 싶지만 F9키를 누르면 죽기 20초전부터 리플레이를 즉시 보여줍니다.    
-**리플레이를 저장하지 않고**, 내가 어떻게 죽었는지, 어떤부분에서 죽었는지 알 수 있습니다. **( 죽었을때만 볼 수 있음, 깰때 X )**     
- = F11은 일반적인 리플레이, F9는 데스캠(?)
+### 데스캠
+ - F9키(변경 가능)을 눌러 죽기 20초 전부터 리플레이를 즉시 보여줍니다.
+ - **리플레이를 저장하지 않고** 내가 어떻개 죽었는지, 어떤부분에서 죽었는지 알 수 있습니다.
+ - 죽었을때만 가능합니다. 깰 때 X
 
-By default, press F9 and F11 when you die while playing a level or when you complete a level.
-Press F11 to **save the replay** and view the replay by entering the replay menu on the main screen. ( or Ctrl + Shift + R )
+### 공통
+ - B키를 눌러 카메라를 자유롭게 이동시킬 수 있습니다. (공식레벨 X)
 
-So is the F9 key also saving replays? But if you press F9, the replay will be shown immediately from 20 seconds before death.
-**Without saving the replay**, you can see how I died and where I died. **( Only when you die in a level )**         
-= F11 is normal replay, F9 is death cam(?) 
 
-그리고 B키( 공식레벨 지원 X )를 눌러 카메라를 자유롭게 이동시킬 수 있습니다.   
-And you can move the camera freely by pressing the B key ( Official Level Support X ).     
-
-     
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
 ## 리플레이 저장에 실패했어요 / Failed to save replay    
