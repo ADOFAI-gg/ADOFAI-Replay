@@ -1,3 +1,5 @@
+[[한국어 문서]](https://github.com/NoBrain0917/ADOFAI-Replay)
+
 # ADOFAI replay
 
 ![replay](https://github.com/NoBrain0917/Replay/blob/master/Resource/adofai.gif?raw=true)
