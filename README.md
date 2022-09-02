@@ -33,38 +33,31 @@ ADOFAI.gg 커뮤니티에 참여해서 더 많은 정보를 얻어보세요! htt
 
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
-## 리플레이 저장에 실패했어요 / Failed to save replay    
+## 리플레이 저장에 실패했어요       
 저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
-The problem is that there is no saved level path. Please save the level
 
-## 저장하고 나서 렉이 걸려요 / There's a lag after I save the replay    
-
+## 저장하고 나서 렉이 걸려요     
 리플레이 파일을 JSON화 시켜 서버로 보내는 과정에서 렉이 발생합니다.     
 코드 특정상 리플레이에서 키를 누른 횟수가 많으면 많을수록 렉이 더 생깁니다.    
 `<얼불춤경로>/Mods/Replay/ReplayOption.xml` 열고 `CanICollectReplayFile` 부분을 `2`로 바꾼후 저장해주세요.
-
-A lag occurs when the replay file is converted to JSON and sent to the server.
-Due to code specifics, the more times a key is pressed in a replay, the more lag.
-Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectReplayFile` to `2` and save it.
 
 ![change](https://github.com/NoBrain0917/Replay/blob/master/Resource/change.png?raw=true)
 
 ---
 
-## 지원하는 키뷰어 / Supported Keyviewers
+## 지원하는 키뷰어
 - AdofaiTweaks(By PizzaLovers007, v2.5.4 or later)
 - RainingKeys(By 파링, v0.3.0 or later)
 - OttoKeyViewer(By ChocoSwi, v1.2.1 or later)
 - KeyViewer(By, C##, v3.4.0 or later)
 
 
-## 지원하는 언어 / Supported Languages
+## 지원하는 언어
 - 한국어(Korean)
 - English
 - 日本語(Japanese)
 
 번역에 관심이 있으시다면 [이부분](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/Replay/Languages/Korean.cs)을 번역하여 풀리퀘 또는 `᲼᲼#8850`로 보내주세요.    
-If you are interested in translation, please translate [this part](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/Replay/Languages/English.cs) and send it to Pull Request or `᲼᲼#8850`
 
 ---
 
