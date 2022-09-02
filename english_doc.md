@@ -23,3 +23,46 @@ By default, press F9 and F11 when you die while playing a level or when you comp
  - Press F9 (can change) to instantly show replays from 20 seconds before death.
  - You can see how I died and where I died **without saving the replay.**
  - Only when you die in a level
+
+### Common
+ - You can move the camera freely by pressing the B key. (Official Level X)
+     
+![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
+
+## Failed to save replay     
+The problem is that there is no saved level path. Please save the level
+
+## There's a lag after I save the replay    
+A lag occurs when the replay file is converted to JSON and sent to the server.
+Due to code specifics, the more times a key is pressed in a replay, the more lag.
+Open `<Dance Path>/Mods/Replay/ReplayOption.xml` and change the `CanICollectReplayFile` to `2` and save it.
+
+![change](https://github.com/NoBrain0917/Replay/blob/master/Resource/change.png?raw=true)
+
+---
+
+## Supported Keyviewers
+- AdofaiTweaks(By PizzaLovers007, v2.5.4 or later)
+- RainingKeys(By 파링, v0.3.0 or later)
+- OttoKeyViewer(By ChocoSwi, v1.2.1 or later)
+- KeyViewer(By, C##, v3.4.0 or later)
+
+
+## Supported Languages
+- 한국어(Korean)
+- English
+- 日本語(Japanese)
+
+If you are interested in translation, please translate [this part](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/Replay/Languages/English.cs) and send it to Pull Request or `᲼᲼#8850`
+
+---
+
+## Special Thanks
+![sans](https://github.com/NoBrain0917/Replay/blob/master/Resource/specialtanks.gif?raw=true)
+- ppapman (UI Design & Feedback)
+- ChocoSwi
+- 서재형
+- kimkealean
+- Luya
+- SHADOW_SDW
+
