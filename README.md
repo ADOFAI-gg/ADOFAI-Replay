@@ -7,13 +7,11 @@ ADOFAI.gg 커뮤니티에 참여해서 더 많은 정보를 얻어보세요! htt
 
 ---
 
-# [최신버전 다운 / Download latest version](https://github.com/NoBrain0917/Replay/releases)
+# [최신버전 다운](https://github.com/NoBrain0917/Replay/releases)
 
 리플레이 모드는 내가 한 플레이를 저장하고 언제든지 다시 볼 수 있는 모드입니다. ~~오버워치 리플레이와 비슷합니다.~~
-Replay Mod is a mod where you can save your play and watch it again at any time. ~~It's similar to Overwatch replay.~~
-    
-
-## 리플레이는 어떻게 보나요? / How do I watch the replay?
+     
+## 리플레이는 어떻게 보나요?
 기본적인 설정으로 레벨을 플레이 하던 중 죽거나 깰때 F9와 F11를 눌러보세요. 
 
 ![save](https://github.com/NoBrain0917/Replay/blob/master/Resource/save.png?raw=true)
