@@ -1,3 +1,5 @@
+[[English Document]](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/english_doc.md)
+
 # ADOFAI Replay 
 
 ![replay](https://github.com/NoBrain0917/Replay/blob/master/Resource/adofai.gif?raw=true)
