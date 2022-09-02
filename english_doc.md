@@ -18,3 +18,8 @@ By default, press F9 and F11 when you die while playing a level or when you comp
 ### General replay
  - Press F11 (can change) to save the replay.
  - You can view replays by entering the replay menu on the main screen. (or Ctrl + Shift + R)
+
+### Deathcam
+ - Press F9 (can change) to instantly show replays from 20 seconds before death.
+ - You can see how I died and where I died **without saving the replay.**
+ - Only when you die in a level
