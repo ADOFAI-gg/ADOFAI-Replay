@@ -68,17 +68,10 @@ namespace Replay
             var index = UnityModManager.modEntries.IndexOf(overlayer);
             Log(index);*/
 
-            
-            try
-            {
-                SceneManager.GetSceneByName("scnLevelSelect");
-                IsAlpha = true;
-            }
-            catch
-            {
-                IsAlpha = false;
-            }
 
+
+            IsAlpha = typeof(scrFloor).GetField("topGlow", AccessTools.all) != null;
+            
             ReplayOption = UnityModManager.ModSettings.Load<ReplayOption>(modEntry);
             _replayHarmony ??= new Harmony(modEntry.Info.Id);
             
@@ -106,6 +99,7 @@ namespace Replay
                 ReplayOption.savedPath = Path.Combine(Application.dataPath, "Replays");
             
             ReplayUtils.RegisterRPL();
+
 
         }
 
