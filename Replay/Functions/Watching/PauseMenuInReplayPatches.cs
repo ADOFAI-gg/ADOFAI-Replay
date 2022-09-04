@@ -64,6 +64,15 @@ namespace Replay.Functions.Watching
             ReplayBasePatches._paused = !ReplayBasePatches._paused;
         }
         
+        [HarmonyPatch(typeof(ADOBase), "GoToCalibration")]
+        [HarmonyPrefix]
+        public static bool CancelCalibrationInReplaying()
+        {
+            if (!WatchReplay.IsPlaying) return true;
+            return false;
+        }
+
+        
         
         [HarmonyPatch(typeof(PauseMenu), "RefreshLayout")]
         [HarmonyPostfix]
