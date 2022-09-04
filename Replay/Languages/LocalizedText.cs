@@ -37,5 +37,15 @@
         public string agreed;
         public string noAgreed;
         public string replayCount20delete;
+
+        public string disableOttoSave;
+        public string hideEffectInDeathcam;
+        public string shareReplay;
+        public string successShare;
+        public string failShare;
+        public string enterCode;
+        
+        public string yourCode;
+
     }
 }

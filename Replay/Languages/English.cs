@@ -41,6 +41,9 @@
             noAgreed = "Reject";
             saveWhen90P = "Save when you die at 90% or more";
             replayCount20delete = "Automatically deleted when the number of replays exceeds 20";
+
+            disableOttoSave = "Don't save replays when auto is on";
+            hideEffectInDeathcam = "Hide effect";
         }
         
         

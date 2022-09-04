@@ -40,6 +40,16 @@
             noAgreed = "수집 동의 안함";
             saveWhen90P = "90% 이상에서 죽을 때 저장하기";
             replayCount20delete = "리플레이 개수가 20개 초과면 자동 삭제";
+
+            disableOttoSave = "오토가 켜져있으면 리플레이를 저장하지 않기";
+            hideEffectInDeathcam = "이펙트 지우기";
+            shareReplay = "리플레이 공유";
+            successShare = "리플레이를 공유했습니다";
+            failShare = "리플레이 공유에 실패했습니다";
+            yourCode = "해당 코드를 다른 사람들에게 전달하면 이 리플레이를 볼 수 있습니다";
+            enterCode = "코드를 입력하세요";
+            
+
         }
     }
 }

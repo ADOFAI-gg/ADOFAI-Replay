@@ -43,6 +43,14 @@
             noAgreed = "収集拒否";
             saveWhen90P = "90%以上で死んだとき保存";
             replayCount20delete = "リプレイ数が20を超えたとき自動削除";
+            
+            hideEffectInDeathcam = "エフェクトを隠す";
+            shareReplay = "リプレイを共有";
+            successShare = "リプレイを共有しました";
+            failShare = "リプレイの共有ができませんでした";
+            yourCode = "次のコードを他の人に伝えればこのリプレイを視聴することができます";
+            enterCode = "コードを入力してください";
+            disableOttoSave = "自動プレイがついているときはリプレイを保存しない";
         }
     }
 }
