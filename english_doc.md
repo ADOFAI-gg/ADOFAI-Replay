@@ -33,7 +33,8 @@ By default, press F9 and F11 when you die while playing a level or when you comp
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
 ## Failed to save replay     
-The problem is that there is no saved level path. Please save the level
+ - The problem is that there is no saved level path. Please save the level
+ - or you didn't move at least 3 tiles from the starting tile
 
 ## There's a lag after I save the replay    
 A lag occurs when the replay file is converted to JSON and sent to the server.
