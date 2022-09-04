@@ -1,4 +1,5 @@
-[[English Document]](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/english_doc.md)
+[[English Document]](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/english_doc.md)    
+[[v1.0.0 vs v0.0.1]](https://github.com/NoBrain0917/ADOFAI-Replay/blob/master/compare.md)
 
 # ADOFAI Replay 
 
@@ -34,7 +35,8 @@ ADOFAI.gg 커뮤니티에 참여해서 더 많은 정보를 얻어보세요! htt
 ![option](https://github.com/NoBrain0917/Replay/blob/master/Resource/option.png?raw=true)
 
 ## 리플레이 저장에 실패했어요       
-저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
+ - 저장된 레벨 경로가 없어서 생긴 문제입니다. 레벨을 저장해주세요   
+ - 또는 시작 지점에서 최소 3개의 타일을 이동하지 않아서 그렇습니다.
 
 ## 저장하고 나서 렉이 걸려요     
 리플레이 파일을 JSON화 시켜 서버로 보내는 과정에서 렉이 발생합니다.     
