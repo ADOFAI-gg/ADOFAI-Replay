@@ -10,10 +10,11 @@ namespace Replay.Functions.Core.Types
         public double HitAngleRatio;
         public int SeqID;
         public bool NoFailHit;
-        public KeyCode Key;
-        public float HeldTime;
+        public bool AutoHit;
         public HitMargin RealHitMargin;
         public HitMargin Hitmargin;
+        public KeyCode Key;
+        public float HeldTime;
 
         //collect to server only
         public bool IsFreeroam;

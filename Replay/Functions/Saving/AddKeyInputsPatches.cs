@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
+using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
 using Replay.Functions.Watching;
 using UnityEngine;
+using UnityModManagerNet;
 
 namespace Replay.Functions.Saving
 {
@@ -15,8 +17,31 @@ namespace Replay.Functions.Saving
         private static float _lastFrame;
         private static float _startTime;
         private static KeyCode _lastKeyCode;
-        
-        // All key inputs
+
+        private static Dictionary<KeyCode, bool> IgnoreKeys = new Dictionary<KeyCode, bool>()
+        {
+            { KeyCode.Escape, true },
+            { KeyCode.End, true },
+            { KeyCode.Print, true },
+            { KeyCode.LeftAlt, true },
+            { KeyCode.LeftWindows, true },
+            { KeyCode.RightWindows, true },
+            { KeyCode.RightAlt, true },
+            { KeyCode.RightControl, true },
+            { KeyCode.F1, true },
+            { KeyCode.F2, true },
+            { KeyCode.F3, true },
+            { KeyCode.F4, true },
+            { KeyCode.F5, true },
+            { KeyCode.F6, true },
+            { KeyCode.F7, true },
+            { KeyCode.F8, true },
+            { KeyCode.F9, true },
+            { KeyCode.F10, true },
+            { KeyCode.F11, true },
+            { KeyCode.F12, true },
+        };
+
         private static KeyCode GetInput()
         {
             var keyCode = KeyCode.None;
@@ -28,8 +53,16 @@ namespace Replay.Functions.Saving
             else
             {
                 _pressedKeys.Clear();
-                foreach (var k in Replay.AllKeyCodes)
+                if(Replay.AllKeyCodes == null)
+                    Replay.AllKeyCodes = (KeyCode[])typeof(KeyCode).GetEnumValues();
+                
+                var keyCodes = SaveReplayPatches.LimitedKeys == null
+                    ? Replay.AllKeyCodes
+                    : SaveReplayPatches.LimitedKeys;
+                
+                foreach (var k in keyCodes)
                 {
+                    if(SaveReplayPatches.LimitedKeys == null && IgnoreKeys.TryGetValue(k, out var v)) continue;
                     if (Input.GetKeyDown((KeyCode)k))
                         _pressedKeys.Enqueue((KeyCode)k);
                 }
@@ -41,21 +74,24 @@ namespace Replay.Functions.Saving
             return keyCode;
         }
         
+        
         [HarmonyPatch(typeof(scrConductor), "StartMusicCo")]
         [HarmonyPostfix]
         public static void SetStartTimePatch()
         {
             if (WatchReplay.IsPlaying) return;
             _startTime = Time.time;
+            
         }
         
+        /*
         [HarmonyPatch(typeof(scrController), "ShowHitText")]
         [HarmonyPrefix]
         public static void SetRealHitMargin(HitMargin hitMargin)
         {
-            if (WatchReplay.IsPlaying) return;
-            _heldPressInfo[_lastKeyCode].RealHitMargin = hitMargin;
-        }
+            if (WatchReplay.IsPlaying) return; 
+            _lastTileInfo[_lastKeyCode].RealHitMargin = hitMargin;
+        }*/
         
         [HarmonyPatch(typeof(scrController), "Hit")]
         [HarmonyPrefix]
@@ -69,20 +105,21 @@ namespace Replay.Functions.Saving
             if (!scrController.isGameWorld && !isFreeroam) return;
             if (scrController.instance.currFloor.midSpin) return;
             //if (scrController.instance.noFailInfiniteMargin) return; 
-            _lastKeyCode = GetInput();
 
+            var keyCode = GetInput();
+            var flag = planet.currfloor.nextfloor != null && planet.currfloor.nextfloor.auto;
             var t = new TileInfo
             {
                 HitAngleRatio = planet.angle - planet.targetExitAngle,
                 SeqID = controller.currentSeqID,
-                Key = _lastKeyCode,
                 NoFailHit = scrController.instance.noFailInfiniteMargin,
-                HeldTime = Time.unscaledDeltaTime,
-                Hitmargin = scrMisc.GetHitMargin((float)planet.angle, (float)planet.targetExitAngle,
+                Hitmargin = ReplayUtils.GetHitMargin((float)planet.angle, (float)planet.targetExitAngle,
                     planet.controller.isCW, (float)(planet.conductor.bpm * planet.controller.speed),
                     planet.conductor.song.pitch),
+                AutoHit = RDC.auto || flag,
+                Key = keyCode,
             };
-            _heldPressInfo[_lastKeyCode] = t;
+            _heldPressInfo[keyCode] = t;
             if (Replay.ReplayOption.CanICollectReplayFile == 1)
             {
                 t.HitTime = Time.timeAsDouble - _startTime;
@@ -98,6 +135,47 @@ namespace Replay.Functions.Saving
             _lastFrame = Time.unscaledTime;
         }
 
+ 
+/*
+        [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
+        [HarmonyPrefix]
+        public static void KeyInputDetectPatch()
+        {
+            try
+            {
+                if (WatchReplay.IsPlaying) return;
+                if (!scrController.instance.goShown) return;
+                if (SaveReplayPatches._states == CustomControllerStates.Fail ||
+                    SaveReplayPatches._states == CustomControllerStates.Won) return;
+
+                foreach (var keyCode in Replay.AllKeyCodes)
+                {
+                    if (Input.GetKeyDown(keyCode))
+                    {
+    
+                        var k = new PressInfo()
+                        {
+                            Key = keyCode,
+                            PressTime = (scrConductor.instance.dspTime - scrConductor.instance.dspTimeSongPosZero)
+                        };
+                        SaveReplayPatches._keyboardInfos.Add(k);
+                        _pressHeldInfo[keyCode] = k;
+                    }
+                    if (Input.GetKey(keyCode))
+                    {
+                        if (_pressHeldInfo.TryGetValue(keyCode, out var v))
+                            v.HeldTime += Time.unscaledDeltaTime;
+                    }
+
+                    if (Input.GetKeyUp(keyCode))
+                        _pressHeldInfo.Remove(keyCode);
+                }
+            }
+            catch
+            {
+
+            }
+        }*/
 
         [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
         [HarmonyPrefix]
@@ -108,12 +186,17 @@ namespace Replay.Functions.Saving
                 if (WatchReplay.IsPlaying) return;
                 if (!scrController.instance.goShown) return;
 
-                foreach (var keyCode in Replay.AllKeyCodes)
+                var keyCodes = SaveReplayPatches.LimitedKeys == null
+                    ? Replay.AllKeyCodes
+                    : SaveReplayPatches.LimitedKeys;
+                
+                foreach (var keyCode in keyCodes)
                 {
+                    if(SaveReplayPatches.LimitedKeys == null && IgnoreKeys.TryGetValue(keyCode, out var v)) continue;
                     if (Input.GetKey(keyCode))
                     {
-                        if (_heldPressInfo.TryGetValue(keyCode, out var v))
-                            _heldPressInfo[keyCode].HeldTime += Time.unscaledDeltaTime;
+                        if (_heldPressInfo.TryGetValue(keyCode, out var held))
+                            held.HeldTime += Time.unscaledDeltaTime;
                     }
                 }
             }
@@ -122,5 +205,7 @@ namespace Replay.Functions.Saving
 
             }
         }
+
+
     }
 }
