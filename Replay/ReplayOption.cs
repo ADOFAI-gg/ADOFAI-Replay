@@ -13,6 +13,8 @@ namespace Replay
         public bool saveBySpecifiedKey = true;
         public bool saveWhen90P;
         public bool replayCount20delte;
+        public bool hideEffectInDeathcam;
+        public bool disableOttoSave;
         public int specifiedKeyCode = (int)KeyCode.F11;
         public int specifiedDeathCamKeyCode = (int)KeyCode.F9;
         public List<string> noUsingKeyviewers = new List<string>();

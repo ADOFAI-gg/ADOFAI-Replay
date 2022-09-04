@@ -22,6 +22,7 @@ namespace Replay.Functions.Core.Types
         public bool IsOfficialLevel;
         public DateTime Time;
         public TileInfo[] Tiles;
+        //public PressInfo[] Presses;
         public NiceUnityColor RedPlanet = new NiceUnityColor(1,0,0,1), BluePlanet = new NiceUnityColor(0,0,1,1);
         public int PathDataHash;
 

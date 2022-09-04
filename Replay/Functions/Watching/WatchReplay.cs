@@ -18,6 +18,7 @@ namespace Replay.Functions.Watching
         public static bool IsPlaying;
         public static bool IsPaused;
         public static bool IsPlanetDied;
+        public static bool IsDeathCam;
         public static bool IsLoading;
         public static bool IsResetLevel;
         public static float PatchedPitch;
@@ -52,6 +53,7 @@ namespace Replay.Functions.Watching
             return ((scrConductor.instance.dspTime - scrConductor.instance.dspTimeSongPosZero) * PatchedPitch) - offset - (GCS.checkpointNum == 0? countdown:0);
         }
         
+        
         public static IEnumerator ResetCustomLevel()
         {
             var controller = scrController.instance;
@@ -78,24 +80,58 @@ namespace Replay.Functions.Watching
         }
         
         // A method to solve the hall of mirror room bug
-        public static void DisableAllEffects(){
+        public static void DisableAllEffects(bool kill = false){
+            
             if(scrVfx.instance != null)
                 scrVfx.instance.enabled = false;
 
             if (scrVfxPlus.instance != null)
             {
-                scrVfxPlus.instance.enabled = false;
-                scrVfxPlus.instance.Reset();
+                if (kill)
+                {
+                    scrVfxPlus.instance.enabled = false;
+                    scrVfxPlus.instance.Reset();
+                }
+                else
+                {
+                    foreach (var e in scrVfxPlus.instance.effects)
+                    {
+                        var typeName = e.GetType().ToString();
+                        if (typeName == "ffxBloomPlus" || typeName == "ffxSetFilterPlus" ||
+                            typeName == "ffxHallOfMirrorsPlus" || typeName == "ffxFlashPlus" ||
+                            typeName == "ffxFlash" ||
+                            typeName == "ffxShakeScreenPlus" || typeName == "ffxScreenScrollPlus" ||
+                            typeName == "ffxScreenTilePlus")
+                            e.triggered = true;
+                    }
+                }
+
                 scrCamera.instance.camobj.clearFlags = CameraClearFlags.Depth;
+
+                foreach (var com in scrCamera.instance.camobj.gameObject.GetComponents<MonoBehaviour>())
+                {
+                    if (com.ToString() == "Camera (UnityEngine.Transform)" ||
+                        com.ToString() == "Camera (UnityEngine.Camera)" ||
+                        com.ToString() == "Camera (UnityEngine.AudioListener)" ||
+                        com.ToString() == "Camera (scrCamera)")
+                        continue;
+                    com.enabled = false;
+                }
             }
 
-            DOTween.KillAll();
+            if (scrCamera.instance != null)
+            {
+                scrCamera.instance.enabled = true;
+                scrCamera.instance.Bgcamstatic.enabled = true;
+            }
+
         }
 
         
         // Play a replay based on the replayInfo
-        public static void Play(ReplayInfo rpl)
+        public static void Play(ReplayInfo rpl, bool deathcam = false)
         {
+            IsDeathCam = deathcam;
             if (rpl.IsOfficialLevel)
             {
                 GCS.checkpointNum = rpl.StartTile;
@@ -114,6 +150,7 @@ namespace Replay.Functions.Watching
             {
                 if (!File.Exists(rpl.Path)) return;
                 OfficialStartAt = 0;
+
                 SceneManager.LoadScene("scnEditor");
                 GCS.customLevelPaths = new string[1];
                 GCS.customLevelPaths[0] = rpl.Path;
@@ -195,4 +232,5 @@ namespace Replay.Functions.Watching
             }
         }
     }
+    
 }

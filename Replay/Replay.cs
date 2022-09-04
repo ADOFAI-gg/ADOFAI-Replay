@@ -10,6 +10,7 @@ using Replay.Functions.Core.Types;
 using Replay.Functions.Menu;
 using Replay.Functions.Watching;
 using Replay.Languages;
+using Replay.UI;
 using SFB;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -125,6 +126,12 @@ namespace Replay
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(20);
+                ReplayOption.hideEffectInDeathcam = GUILayout.Toggle(ReplayOption.hideEffectInDeathcam, CurrentLang.hideEffectInDeathcam);
+                GUILayout.EndHorizontal();
+                
+                
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(20);
                 GUILayout.Label(CurrentLang.registerSpecifiedKeyText);
                 if (GUILayout.Button("   " + ((KeyCode) ReplayOption.specifiedDeathCamKeyCode) + "   ",
                         _registerKeyDeathcam ? _registerKeyButton : GUI.skin.button))
@@ -170,6 +177,11 @@ namespace Replay
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
                 GUILayout.Label("");
+                
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(20);
+                ReplayOption.disableOttoSave = GUILayout.Toggle(ReplayOption.disableOttoSave, CurrentLang.disableOttoSave);
+                GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(20);
@@ -280,8 +292,13 @@ namespace Replay
             {
                 if(WatchReplay.IsPlaying)
                     ReplayBasePatches.Reset();
+
                 if (SceneManager.GetActiveScene().name == "scnReplayIntro")
+                {
+                    if(scnReplayIntro.scnReplayIntro.Instance != null)
+                        scnReplayIntro.scnReplayIntro.Instance.StopAllCoroutines();
                     SceneManager.LoadScene(IsAlpha ? "scnLevelSelect" : "scnNewIntro");
+                }
                 else
                     ADOBase.RestartScene();
                 if (scrController.instance != null)
@@ -289,6 +306,8 @@ namespace Replay
                     ReplayBasePatches._progressDisplayerCancel = true;
                     scrUIController.instance.WipeToBlack(WipeDirection.StartsFromLeft);
                 }
+
+                ReplayMenuPatches._created = false;
 
                 _replayHarmony.UnpatchAll(modEntry.Info.Id);
             }
