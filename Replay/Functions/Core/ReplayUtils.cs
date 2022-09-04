@@ -51,6 +51,43 @@ namespace Replay.Functions.Core
             if (index < 0) return lists[0];
             return lists[index];
         }
+        
+        public static HitMargin GetHitMargin(float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale = 1.0)
+        {
+            float num = (hitangle - refangle) * (float)(isCW ? 1 : -1);
+            HitMargin result = HitMargin.TooEarly;
+            float num2 = num;
+            num2 = 57.29578f * num2;
+            double adjustedAngleBoundaryInDeg = scrMisc.GetAdjustedAngleBoundaryInDeg(HitMarginGeneral.Counted, (double)bpmTimesSpeed, (double)conductorPitch, marginScale);
+            double adjustedAngleBoundaryInDeg2 = scrMisc.GetAdjustedAngleBoundaryInDeg(HitMarginGeneral.Perfect, (double)bpmTimesSpeed, (double)conductorPitch, marginScale);
+            double adjustedAngleBoundaryInDeg3 = scrMisc.GetAdjustedAngleBoundaryInDeg(HitMarginGeneral.Pure, (double)bpmTimesSpeed, (double)conductorPitch, marginScale);
+            if ((double)num2 > -adjustedAngleBoundaryInDeg)
+            {
+                result = HitMargin.VeryEarly;
+            }
+            if ((double)num2 > -adjustedAngleBoundaryInDeg2)
+            {
+                result = HitMargin.EarlyPerfect;
+            }
+            if ((double)num2 > -adjustedAngleBoundaryInDeg3)
+            {
+                result = HitMargin.Perfect;
+            }
+            if ((double)num2 > adjustedAngleBoundaryInDeg3)
+            {
+                result = HitMargin.LatePerfect;
+            }
+            if ((double)num2 > adjustedAngleBoundaryInDeg2)
+            {
+                result = HitMargin.VeryLate;
+            }
+            if ((double)num2 > adjustedAngleBoundaryInDeg)
+            {
+                result = HitMargin.TooLate;
+            }
+            return result;
+        }
+
 
         public static List<UnityModManager.ModEntry> GetKeyviewers()
         {
