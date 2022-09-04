@@ -22,8 +22,10 @@ namespace Replay.Functions.Menu
     [HarmonyPatch]
     public class ReplayMenuPatches
     {
-        private static bool _isFirstLoading;
-        private static bool _disableAll; 
+        private static bool _disableAll;
+        
+        internal static bool _isFirstLoading;
+        internal static bool _created;
         
         public static List<UnityModManager.ModEntry> CompatKeyViewers;
         
@@ -31,6 +33,7 @@ namespace Replay.Functions.Menu
         // Create a new replay tile
         public static void CreateNewFloor()
         {
+            if (_created) return;
             var originalFloor = GameObject.Find("FloorCalibration");
             if (originalFloor == null) return;
             var floorParent = GameObject.Find("outer ring").transform;
@@ -38,6 +41,8 @@ namespace Replay.Functions.Menu
             copyFloor.gameObject.name = "FloorReplay";
             copyFloor.transform.position = new Vector3(2, 3, 0);
             copyFloor.levelnumber = -6974;
+            copyFloor.floorRenderer.enabled = true;
+            copyFloor.gameObject.SetActive(true);
                 
             var textParent = GameObject.Find("Canvas World").transform;
             var originalText = GameObject.Find("Calibration");
@@ -46,6 +51,7 @@ namespace Replay.Functions.Menu
             copyText.text = Replay.CurrentLang.replayModText;
             copyText.gameObject.name = "Replay";
             copyText.transform.position = new Vector3(2.7348f, 4.1518f, 72.32f);
+            _created = true;
         }
 
 
@@ -65,18 +71,26 @@ namespace Replay.Functions.Menu
         [HarmonyPrefix]
         public static bool DisableErrorDobePatch(object message)
         {
-            return !message.ToString().Contains("Target or field");
+            return false;
+        }
+
+        [HarmonyPatch(typeof(scnLevelSelect), "Awake")]
+        [HarmonyPostfix]
+        public static void SetCreated()
+        {
+            _created = false;
         }
         
         
-        [HarmonyPatch(typeof(scnLevelSelect),"Start")]
+        [HarmonyPatch(typeof(scrController),"Awake")]
         [HarmonyPostfix]
         public static void InitFirstSettingPatch()
         {
-            CreateNewFloor();
-            
+
             if (_isFirstLoading) return;
             _isFirstLoading = true;
+            
+            AdofaiTweaksAPI.Init();
 
             Replay.IsDebug = DiscordController.currentUserID == 390747532172460033L;
 
@@ -84,9 +98,8 @@ namespace Replay.Functions.Menu
             Replay.IsUsingNoStopMod = UnityModManager.FindMod("NoStopMod") != null;
 
             ReplayUIUtils.SwipeStart = ADOBase.gc.soundEffects[(int)SfxSound.ScreenWipeOut];
-            
-            
-            
+
+
             CompatKeyViewers = ReplayUtils.GetKeyviewers();
             foreach (var k in Replay.ReplayOption.noUsingKeyviewers)
             {
@@ -168,6 +181,8 @@ namespace Replay.Functions.Menu
         [HarmonyPrefix]
         public static void ShortcutKeysPatch()
         {
+            if(!_created)
+                CreateNewFloor();
             
             if (RDEditorUtils.CheckForKeyCombo(true, true, KeyCode.R))
             {
