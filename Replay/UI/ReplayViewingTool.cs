@@ -261,10 +261,13 @@ namespace Replay.UI
         
         
         // Pitch Up Down
+        private static int lastSeqID;
         public static void PitchUp()
         {
             if (scrController.instance.pauseMenu.gameObject.activeSelf) return;
             if (WatchReplay.IsResetLevel) return;
+            if(lastSeqID == -999)
+                lastSeqID = scrController.instance.currentSeqID;
             
             GCS.currentSpeedTrial += 0.1f;
             GCS.nextSpeedRun = GCS.currentSpeedTrial;
@@ -286,9 +289,10 @@ namespace Replay.UI
             _pitchUpDown = DOVirtual.DelayedCall(0.3f, () =>
             {
                 WatchReplay.PatchedPitch = GCS.currentSpeedTrial;
-                ReplayBasePatches.ReplayStartAt(scrController.instance.currentSeqID-1);
+                ReplayBasePatches.ReplayStartAt(lastSeqID-1);
                 ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
                 _valueChanging = false;
+                lastSeqID = -999;
             });
         }
         
@@ -296,6 +300,8 @@ namespace Replay.UI
         {
             if (scrController.instance.pauseMenu.gameObject.activeSelf) return;
             if (WatchReplay.IsResetLevel) return;
+            if(lastSeqID == -999)
+                lastSeqID = scrController.instance.currentSeqID;
             
             GCS.currentSpeedTrial -= 0.1f;
             GCS.nextSpeedRun = GCS.currentSpeedTrial;
@@ -317,9 +323,10 @@ namespace Replay.UI
             _pitchUpDown = DOVirtual.DelayedCall(0.3f, () =>
             {
                 WatchReplay.PatchedPitch = GCS.currentSpeedTrial;
-                ReplayBasePatches.ReplayStartAt(scrController.instance.currentSeqID-1);
+                ReplayBasePatches.ReplayStartAt(lastSeqID-1);
                 ReplayUI.Instance.PitchText.text = $"{GCS.currentSpeedTrial: 0.0}x";
                 _valueChanging = false;
+                lastSeqID = -999;
             });
         }
     }
