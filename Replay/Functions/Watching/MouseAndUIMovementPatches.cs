@@ -45,6 +45,7 @@ namespace Replay.Functions.Watching
             _meterTween?.Kill();
             
             Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
 
             _toolTween = ReplayUtils.DOAnchorPos(_replayToolUI, new Vector2(_replayToolUI.anchoredPosition.x, _toolY), 0.5f).SetUpdate(true);
             _meterTween = ReplayUtils.DOAnchorPos(_errorMeter, new Vector2(_errorMeter.anchoredPosition.x, _meterY), 0.5f).SetUpdate(true);
@@ -68,6 +69,7 @@ namespace Replay.Functions.Watching
         {
             if (!WatchReplay.IsPlaying) return;
             Cursor.visible = !_hided;
+            Cursor.lockState = CursorLockMode.None;
         }
         
         [HarmonyPatch(typeof(PauseMenu), "OnEnable")]
@@ -76,6 +78,7 @@ namespace Replay.Functions.Watching
         {
             if (!WatchReplay.IsPlaying) return;
             Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
         
 
