@@ -1,7 +1,10 @@
-﻿using HarmonyLib;
+﻿using System;
+using DG.Tweening;
+using HarmonyLib;
 using Replay.Functions.Core;
 using Replay.Functions.Menu;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Replay.Functions.Watching
 {
@@ -89,7 +92,54 @@ namespace Replay.Functions.Watching
         }
         
         
-        
+        [HarmonyPatch(typeof(scrUIController), "WipeFromBlack")]
+        [HarmonyPrefix]
+        public static bool FixBlackScreen(scrUIController __instance)
+        {
+            if (WatchReplay.IsPlaying)
+                scrUIController.wipeDirection = WipeDirection.StartsFromRight;
+            
+            scrSfx.instance.PlaySfx(SfxSound.ScreenWipeIn, 0.5f);
+            __instance.transitionPanel.gameObject.SetActive(true);
+            __instance.transitionPanel.color = Color.black;
+            RectTransform rectTransform = __instance.transitionPanel.rectTransform;
+            float x = (scrUIController.wipeDirection == WipeDirection.StartsFromLeft) ? 1f : 0f;
+            rectTransform.pivot = new Vector2(x, 0.5f);
+            rectTransform.localScale = Vector3.one;
+            rectTransform.DOKill(false);
+            float duration = GCS.speedTrialMode ? (0.3f / GCS.currentSpeedTrial) : 0.3f;
+            var tween = rectTransform.DOScaleX(0f, duration).SetEase(Ease.InOutQuint).SetUpdate(true).OnComplete(
+                delegate
+                {
+                    __instance.transitionPanel.gameObject.SetActive(false);
+                });
+            tween.OnKill(() =>
+            {
+                __instance.transitionPanel.gameObject.SetActive(false);
+            });
+            return false;
+        }
+
+        [HarmonyPatch(typeof(scrUIController), "WipeToBlack")]
+        [HarmonyPrefix]
+        public static bool FixBlackScreen2(scrUIController __instance, WipeDirection direction, Action onComplete,
+            Tweener ___wipeToBlack)
+        {
+            if (WatchReplay.IsPlaying)
+                ReplayBasePatches.Reset();
+
+            if (ReplayBasePatches._progressDisplayerCancel)
+            {
+                ReplayBasePatches._progressDisplayerCancel = false;
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+
         [HarmonyPatch(typeof(scrConductor), "StartMusicCo")]
         [HarmonyPostfix]
         public static void FixSongNotPlayingBugPatch()

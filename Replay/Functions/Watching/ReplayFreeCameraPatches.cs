@@ -30,6 +30,7 @@ namespace Replay.Functions.Watching
         {
             if (WatchReplay.IsPlaying)
             {
+                scrCamera.instance.camobj.enabled = true;
                 if (Input.GetKeyDown(KeyCode.B))
                 {
                     _freeCameraMode = !_freeCameraMode;
@@ -42,6 +43,7 @@ namespace Replay.Functions.Watching
                     else
                     {
                         _lastRotate = scrCamera.instance.transform.localEulerAngles;
+                        _lastZoom = scrCamera.instance.zoomSize;
                         var moveTween = (Tween)typeof(ffxCameraPlus).GetField("moveTween", AccessTools.all)
                             ?.GetValue(null);
                         var rotationTween = (Tween)typeof(ffxCameraPlus).GetField("rotationTween", AccessTools.all)

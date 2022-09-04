@@ -12,37 +12,17 @@ namespace Replay.UI
         {
             if (ReplayUIUtils._createUI)
             {
-                if (ReplayUIUtils._swipeImage.anchoredPosition.x >= -1920 &&
-                    ReplayUIUtils._swipeImage.anchoredPosition.x <= 1920)
-                {
-                    if (ReplayUIUtils._movingTween1 != null && ReplayUIUtils._movingTween2 != null)
+                if (ReplayUIUtils._swipeImage.anchoredPosition.x > -1920 &&
+                    ReplayUIUtils._swipeImage.anchoredPosition.x < 1920)
+                { 
+                    if (!ReplayUIUtils._swiping)
                     {
-                        if (!ReplayUIUtils._movingTween1.active && !ReplayUIUtils._movingTween2.active )
-                        {
-                            ReplayUIUtils.Hide();
-                        }
-                    } else if (ReplayUIUtils._movingTween1 != null)
-                    {
-                        if (!ReplayUIUtils._movingTween1.active && ReplayUIUtils._movingTween2 == null)
-                        {
-                            ReplayUIUtils.Hide();
-                        }
-                    } else if (!ReplayUIUtils._swiping)
-                    {
+
                         ReplayUIUtils.Hide();
                     }
                 }
-                
             }
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                if (SceneManager.GetActiveScene().name == "scnReplayIntro")
-                {
-                    ReplayUIUtils.DoSwipe(()=>SceneManager.LoadScene(Replay.IsAlpha? "scnLevelSelect": "scnNewIntro"));
-                }
-                    
-            }
+            
         }
 
 

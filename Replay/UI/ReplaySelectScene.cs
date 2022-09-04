@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +15,7 @@ namespace Replay.UI
 {
     public class ReplaySelectScene
     {
+
         public static void SetLanguage()
         {
             GlobalLanguage.ProgressTitle = Replay.CurrentLang.progressTitle;
@@ -26,10 +28,23 @@ namespace Replay.UI
             GlobalLanguage.ReplayingTitle = Replay.CurrentLang.replayingText;
             ReplayUI.Instance.ReplayingTitle.text = GlobalLanguage.ReplayingTitle;
         }
+        
+        private static IEnumerator WaitAndHide()
+        {
+            yield return new WaitForSeconds(0.52f);
+            ReplayUIUtils.Hide();
+            scnReplayIntro.scnReplayIntro.Instance.mainCamera.enabled = true;
+        }
 
         
         public static void Awake()
         {
+            GameObject.Find("Main Camera").GetComponent<Camera>().enabled = true;
+
+            GC.Collect();
+            scnReplayIntro.scnReplayIntro.Instance.StopAllCoroutines();
+            scnReplayIntro.scnReplayIntro.Instance.StartCoroutine(WaitAndHide());
+            
             scrSfx.instance.PlaySfx(SfxSound.ScreenWipeIn);
             var discord = (Discord.Discord)typeof(DiscordController).GetField("discord", AccessTools.all)?
                 .GetValue(DiscordController.instance);
@@ -81,7 +96,15 @@ namespace Replay.UI
                         scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
                         File.Delete(f);
                     };
-                    rpinfo.OnPlay = () => { ReplayUIUtils.DoSwipe(() => { WatchReplay.Play(rpl); }); };
+                    rpinfo.OnPlay = () =>
+                    {
+                        if(scnReplayIntro.scnReplayIntro.Instance != null)
+                            scnReplayIntro.scnReplayIntro.Instance.StopAllCoroutines();
+                        ReplayUIUtils.DoSwipe(() =>
+                        {
+                            WatchReplay.Play(rpl);
+                        });
+                    };
                     scnReplayIntro.scnReplayIntro.Instance.AddReplayCard(rpinfo);
 
                     if (pre != null)
@@ -101,6 +124,8 @@ namespace Replay.UI
 
         public static void OnQuit()
         {
+            if(scnReplayIntro.scnReplayIntro.Instance != null)
+                scnReplayIntro.scnReplayIntro.Instance.StopAllCoroutines();
             ReplayUIUtils.DoSwipe(() => { SceneManager.LoadScene(Replay.IsAlpha ? "scnLevelSelect" : "scnNewIntro"); });
         }
 
