@@ -27,14 +27,22 @@ namespace Replay.Functions.Saving
         private static bool _isSave;
         private static bool _tryDeathCamMode;
         private static ReplayInfo _replayInfo;
-        private static CustomControllerStates _states = CustomControllerStates.PlayerControl;
         
+        internal static CustomControllerStates _states = CustomControllerStates.PlayerControl;
         internal static List<TileInfo> _pressInfos = new List<TileInfo>();
+        internal static List<PressInfo> _keyboardInfos = new List<PressInfo>();
+        internal static int _cachedStartTile;
+        internal static KeyCode[] LimitedKeys;
+        
+        
 
 
         // Save replay data
         private static void Save()
         {
+            if (Replay.ReplayOption.disableOttoSave && RDC.auto)
+                return;
+            
             if (_isSave) return;
             _isSave = true;
 
@@ -136,7 +144,7 @@ namespace Replay.Functions.Saving
             ReplayUI.Instance.ShowSaveLabel(() =>
             {
                 if (string.IsNullOrEmpty(_replayInfo.Path)) throw new Exception("level path is null");
-                if (_replayInfo.StartTile == scrController.instance.currentSeqID)
+                if (_replayInfo.StartTile + 2 >= _replayInfo.EndTile)
                     throw new Exception("the start tile and the end tile are the same");
                 ReplayUtils.SaveReplay(_replayInfo.SongName + (_replayInfo.GetHashCode()) + ".rpl", _replayInfo);
 
@@ -176,7 +184,7 @@ namespace Replay.Functions.Saving
             _tryDeathCamMode = true;
             _isSave = true;
             
-            if (_replayInfo.StartTile == scrController.instance.currentSeqID)
+            if (_replayInfo.StartTile + 2 >= scrController.instance.currentSeqID)
             {
                 Replay.Log("the start tile and the end tile are the same");
                 return;
@@ -216,6 +224,9 @@ namespace Replay.Functions.Saving
                     ? CustomLevel.instance.levelData.pathData.GetHashCode()
                     : string.Join("", CustomLevel.instance.levelData.angleData).GetHashCode());
             _replayInfo.Time = DateTime.Now;
+            
+            GlobalLanguage.ReplayingTitle = Replay.CurrentLang.replayingText;
+            ReplayUI.Instance.ReplayingTitle.text = GlobalLanguage.ReplayingTitle;
 
             var startTime = scrLevelMaker.instance.listFloors[_replayInfo.StartTile].entryTime;
             var currentTime = scrController.instance.currFloor.entryTime - 20 - startTime;
@@ -227,7 +238,7 @@ namespace Replay.Functions.Saving
                 (long)((floor[scrController.instance.currentSeqID].entryTime -
                         floor[chooseSeqID].entryTime) * 1000);
 
-            WatchReplay.Play(_replayInfo);
+            WatchReplay.Play(_replayInfo, true);
         }
 
 
@@ -236,14 +247,17 @@ namespace Replay.Functions.Saving
         
         private static void ResetReplayInfo()
         {
+            _keyboardInfos.Clear();
             _pressInfos.Clear();
             _replayInfo = new ReplayInfo
             {
                 StartTile = GCS.checkpointNum
             };
+            _cachedStartTile = GCS.checkpointNum;
             _states = CustomControllerStates.PlayerControl;
             _isSave = false;
             _tryDeathCamMode = false;
+            LimitedKeys = AdofaiTweaksAPI.IsEnabled ? AdofaiTweaksAPI.ActiveKeys.ToArray(): null;
             GC.Collect();
 
         }
@@ -320,7 +334,21 @@ namespace Replay.Functions.Saving
             _states = CustomControllerStates.PlayerControl;
             _isSave = false;
             _tryDeathCamMode = false;
+            _pressInfos.Clear();
         }
+        
+        /*
+         test auto hitmarin
+        [HarmonyPatch(typeof(scrHitErrorMeter), "AddHit")]
+        [HarmonyPrefix]
+        public static void AddHit(ref float angleDiff)
+        {
+            float num = (float)(scrController.instance.chosenplanet.cachedAngle - scrController.instance.chosenplanet.targetExitAngle);
+            if (!scrController.instance.isCW)
+                num *= -1f;
+            angleDiff = num;
+
+        }*/
 
 
         [HarmonyPatch(typeof(scnEditor), "ResetScene")]
@@ -331,6 +359,7 @@ namespace Replay.Functions.Saving
             _states = CustomControllerStates.PlayerControl;
             _isSave = false;
             _tryDeathCamMode = false;
+            _pressInfos.Clear();
         }
 
 
@@ -353,7 +382,11 @@ namespace Replay.Functions.Saving
 
                 if (_states == CustomControllerStates.Fail && Input.GetKeyDown(
                         (KeyCode)Replay.ReplayOption.specifiedDeathCamKeyCode))
+                {
+                    if (Replay.ReplayOption.disableOttoSave && RDC.auto)
+                        return;
                     ReplayUIUtils.DoSwipe(ShowDeathCam);
+                }
             }
         }
 
