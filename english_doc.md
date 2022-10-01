@@ -64,6 +64,7 @@ If you are interested in translation, please translate [this part](https://githu
 ## Special Thanks
 ![sans](https://github.com/NoBrain0917/Replay/blob/master/Resource/specialtanks.gif?raw=true)
 - ppapman (UI Design & Feedback)
+- sjk (Japanese translation)
 - ChocoSwi
 - 서재형
 - kimkealean
