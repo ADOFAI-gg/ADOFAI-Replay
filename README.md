@@ -66,6 +66,7 @@ ADOFAI.gg 커뮤니티에 참여해서 더 많은 정보를 얻어보세요! htt
 ## Special Thanks
 ![sans](https://github.com/NoBrain0917/Replay/blob/master/Resource/specialtanks.gif?raw=true)
 - ppapman (UI Design & Feedback)
+- sjk (Japanese translation)
 - ChocoSwi
 - 서재형
 - kimkealean
