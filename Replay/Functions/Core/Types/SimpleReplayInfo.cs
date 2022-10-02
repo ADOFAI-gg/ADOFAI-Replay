@@ -11,6 +11,5 @@
         public int EndSeqID;
         public bool IsOfficialLevel;
         public TileInfo[] Tiles;
-        public PressInfo[] Presses;
     }
 }
