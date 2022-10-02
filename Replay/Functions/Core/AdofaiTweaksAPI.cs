@@ -42,6 +42,7 @@ namespace Replay.Functions.Core
             if (adofaiTweaks != null)
             {
                 _adofaiTweaksAssembly = adofaiTweaks.Assembly;
+                if (_adofaiTweaksAssembly == null) return;
                 var t = adofaiTweaks.Assembly.GetType("AdofaiTweaks.Tweaks.KeyLimiter.KeyLimiterPatches");
                 _keyLimitSetting = t.GetProperty("Settings", AccessTools.all);
             }

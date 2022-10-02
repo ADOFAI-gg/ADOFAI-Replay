@@ -249,6 +249,7 @@ namespace Replay.Functions.Saving
         {
             _keyboardInfos.Clear();
             _pressInfos.Clear();
+            AddKeyInputsPatches.pressed.Clear();
             _replayInfo = new ReplayInfo
             {
                 StartTile = GCS.checkpointNum
@@ -335,6 +336,7 @@ namespace Replay.Functions.Saving
             _isSave = false;
             _tryDeathCamMode = false;
             _pressInfos.Clear();
+            AddKeyInputsPatches.pressed.Clear();
         }
         
         /*
@@ -360,6 +362,7 @@ namespace Replay.Functions.Saving
             _isSave = false;
             _tryDeathCamMode = false;
             _pressInfos.Clear();
+            AddKeyInputsPatches.pressed.Clear();
         }
 
 
