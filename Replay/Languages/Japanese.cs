@@ -45,12 +45,35 @@
             replayCount20delete = "リプレイ数が20を超えたとき自動削除";
             
             hideEffectInDeathcam = "エフェクトを隠す";
-            shareReplay = "リプレイを共有";
-            successShare = "リプレイを共有しました";
-            failShare = "リプレイの共有ができませんでした";
-            yourCode = "次のコードを他の人に伝えればこのリプレイを視聴することができます";
-            enterCode = "コードを入力してください";
             disableOttoSave = "自動プレイがついているときはリプレイを保存しない";
+            
+            loadReplay = "読み込む";
+            enterCodeTitle = "リプレイコードを入力";
+            enterCodeHintText = "コードを入力";
+            notSupportOfficialLevel = "公式レベルは読み込むことができません";
+            reallyShareThisReplay = "このリプレイを共有しますか？";
+            cantShareBecauseLimitOver = "リプレイ共有数が10個を超えているため、共有ができませんでした。\n他の共有リプレイを削除してから共有してください";
+            reallyDeleteSharedReplay = "本当に削除しますか？";
+            reallyDeleteSharedReplayMoreMessage = "共有リプレイコードも一緒に削除されます。\n本当に削除しますか？";
+            downloadingText = "ダウンロード中...";
+            uploadingText = "アップロード中...";
+            successShareReplay = "アップロードされました。\nリプレイコード:";
+            copySharedReplayCode = "コードをコピー";
+            failShareReplay = "アップロードに失敗しました。\n理由:";
+            failDownloadReplay = "ダウンロードに失敗しました。\n理由:";
+            sharedReplayCount = "共有レベル数:";
+            invalidReplayCode = "無効のリプレイコード";
+            failDownloadReplayShort = "レベルダウンロード失敗";
+            removeOnlyMyReplay = "自分のリプレイのみ削除できます";
+            preparing = "準備中...";
+            autoUpdate = "自動でアップデートする";
+            nextTimeUpdate = "次回アップデートする";
+            newReplayVersion = "新しいReplayバージョン！";
+            restartSoon = "まもなく再起動します...";
+            japaneseTranslate = "日本語訳";
+            
+            UnsetTextSetting();
+
         }
     }
 }

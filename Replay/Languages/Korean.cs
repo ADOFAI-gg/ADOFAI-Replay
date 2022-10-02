@@ -43,12 +43,34 @@
 
             disableOttoSave = "오토가 켜져있으면 리플레이를 저장하지 않기";
             hideEffectInDeathcam = "이펙트 지우기";
-            shareReplay = "리플레이 공유";
-            successShare = "리플레이를 공유했습니다";
-            failShare = "리플레이 공유에 실패했습니다";
-            yourCode = "해당 코드를 다른 사람들에게 전달하면 이 리플레이를 볼 수 있습니다";
-            enterCode = "코드를 입력하세요";
             
+            loadReplay = "불러오기";
+            enterCodeTitle = "리플레이 코드를 입력";
+            enterCodeHintText = "코드 입력";
+            notSupportOfficialLevel = "공식레벨은 지원하지 않습니다";
+            reallyShareThisReplay = "이 리플레이를 공유하시겠습니까?";
+            cantShareBecauseLimitOver = "리플레이 공유 횟수가 10개를 초과하여 공유할 수 없습니다.\n다른 공유한 리플레이를 지우고 다시 시도해주세요";
+            reallyDeleteSharedReplay = "정말로 지우시겠습니까?";
+            reallyDeleteSharedReplayMoreMessage = "공유된 리플레이 코드까지 같이 지워집니다.\n정말로 지우시겠습니까?";
+            downloadingText = "다운로드 중...";
+            uploadingText = "업로드 중...";
+            successShareReplay = "업로드되었습니다.\n리플레이 코드:";
+            copySharedReplayCode = "코드 복사";
+            failShareReplay = "업로드에 실패했습니다.\n사유:";
+            failDownloadReplay = "다운로드에 실패했습니다.\n사유:";
+            sharedReplayCount = "공유 레벨 수:";
+            invalidReplayCode = "잘못된 리플레이 코드";
+            failDownloadReplayShort = "레벨 다운로드 실패";
+            removeOnlyMyReplay = "본인 리플레이만 지울 수 있습니다";
+            preparing = "준비 중...";
+            autoUpdate = "자동 업데이트";
+            nextTimeUpdate = "다음에 업데이트";
+            newReplayVersion = "새로운 리플레이 버전!";
+            restartSoon = "곧 재시작 됩니다...";
+            japaneseTranslate = "일본어 번역";
+
+            UnsetTextSetting();
+
 
         }
     }

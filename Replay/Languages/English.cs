@@ -44,6 +44,35 @@
 
             disableOttoSave = "Don't save replays when auto is on";
             hideEffectInDeathcam = "Hide effect";
+            
+            
+            loadReplay = "Load Replay";
+            enterCodeTitle = "Enter replay code";
+            enterCodeHintText = "enter here";
+            notSupportOfficialLevel = "Official level is not supported";
+            reallyShareThisReplay = "Do you want to share this replay?";
+            cantShareBecauseLimitOver = "It cannot be shared because the number of shared replays exceeds 10.\nPlease delete other shared replays and try again.";
+            reallyDeleteSharedReplay = "Are you sure you want to erase it?";
+            reallyDeleteSharedReplayMoreMessage = "Even the shared replay code will be deleted.\nAre you sure you want to delete it?";
+            downloadingText = "Downloading...";
+            uploadingText = "Uploading...";
+            successShareReplay = "Uploaded.\nReplay Code:";
+            copySharedReplayCode = "Copy replay code";
+            failShareReplay = "Upload failed.\nReason:";
+            failDownloadReplay = "Download failed.\nReason:";
+            sharedReplayCount = "Number of shared replays:";
+            invalidReplayCode = "Invalid replay code";
+            failDownloadReplayShort = "Level download failed";
+            removeOnlyMyReplay = "You can only delete your own replays";
+            preparing = "Preparing...";
+            autoUpdate = "Auto update";
+            nextTimeUpdate = "Update next time";
+            newReplayVersion = "New replay version!";
+            restartSoon = "It will restart soon...";
+            japaneseTranslate = "Japanese translation";
+            
+            UnsetTextSetting();
+
         }
         
         
