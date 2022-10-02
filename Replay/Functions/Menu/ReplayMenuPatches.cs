@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using DG.Tweening;
-using DG.Tweening.Core;
 using DG.Tweening.Plugins;
 using DG.Tweening.Plugins.Options;
 using HarmonyLib;
@@ -15,6 +19,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityModManagerNet;
+using Debugger = DG.Tweening.Core.Debugger;
 using Object = UnityEngine.Object;
 
 namespace Replay.Functions.Menu
@@ -62,6 +67,7 @@ namespace Replay.Functions.Menu
             var text = $"<color=#ffffffaa><size=42>{Replay.CurrentLang.replayMod}</size></color>\n";
             text += $"<color=#ffffffaa><size=34>{Replay.CurrentLang.programming}:</size></color>Flower\n";
             text += $"<color=#ffffffaa><size=34>{Replay.CurrentLang.uiDesign}:</size></color>ppapman\n";
+            text += $"<color=#ffffffaa><size=34>{Replay.CurrentLang.japaneseTranslate}:</size></color>sjk\n";
             text += "\n";
             text += __instance.text.text;
             __instance.text.text = text;
@@ -91,6 +97,7 @@ namespace Replay.Functions.Menu
             _isFirstLoading = true;
             
             AdofaiTweaksAPI.Init();
+            
 
             Replay.IsDebug = DiscordController.currentUserID == 390747532172460033L;
 
@@ -130,6 +137,7 @@ namespace Replay.Functions.Menu
                         scrController.instance.paused = false;
                         Time.timeScale = 1;
                         Replay.ReplayOption.CanICollectReplayFile = 1;
+                        return true;
                     }, () =>
                     {
                         scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
@@ -137,11 +145,92 @@ namespace Replay.Functions.Menu
                         Replay.ReplayOption.CanICollectReplayFile = 2;
                         scrController.instance.paused = false;
                         Time.timeScale = 1;
+                        return true;
                     },RDString.language);
+            }
+            else
+            {
+                var nowVersion = 0;
+                int.TryParse(Replay.unityModEntry.Info.Version.Replace(".", ""), out nowVersion);
+                
+                var wc = new WebClient();
+                wc.Encoding = Encoding.UTF8;
+                wc.Headers.Add("user-agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Mobile Safari/537.36");
+            
+                var data = wc.DownloadString("https://api.github.com/repos/NoBrain0917/ADOFAI-Replay/releases/latest");
+                var latestVersionString = data.Split(new[] { "\"tag_name\": \"" }, StringSplitOptions.None)[1].Split('"')[0].Replace("v","");
+                
+                Replay.Log($"Current Version: {Replay.unityModEntry.Info.Version}, Latest Version: {latestVersionString}");
+                var latestVersion = 0;
+                int.TryParse(latestVersionString.Replace(".", ""), out latestVersion);
+
+                if (latestVersion > nowVersion)
+                {
+                    var body = data.Split(new[] { "\"body\": \"" }, StringSplitOptions.None)[1].Split('"')[0].Replace("\\n","\n").Replace("\\r","\r");
+                    var url = data.Split(new[] { "\"browser_download_url\": \"" }, StringSplitOptions.None)[1]
+                        .Split('"')[0];
+
+                    GlobalLanguage.OK = Replay.CurrentLang.autoUpdate;
+                    GlobalLanguage.No = Replay.CurrentLang.nextTimeUpdate;
+                    
+                    _disableAll = true;
+                    scrController.instance.paused = true;
+                    Time.timeScale = 0;
+                    
+                    ReplayUI.Instance.ShowNotification($"{Replay.CurrentLang.newReplayVersion} v"+latestVersionString, body,
+                        () =>
+                        {
+                            ReplayUI.Instance.Message.text = Replay.CurrentLang.downloadingText;
+                            scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
+                            ReplayUI.Instance.NoButton.gameObject.SetActive(false);
+                            ReplayUI.Instance.YesButton.gameObject.SetActive(false);
+                            wc.DownloadProgressChanged += (o, e) =>
+                            {
+                                ReplayUI.Instance.Message.text = Replay.CurrentLang.downloadingText+" ( " + e.ProgressPercentage + "% )";
+                            };
+                            wc.DownloadFileAsync(new Uri(url), Path.Combine(Path.GetTempPath(), "replay-new.zip"));
+                            wc.DownloadFileCompleted += (o, e) =>
+                            {
+                                
+                                ReplayUI.Instance.Message.text = Replay.CurrentLang.restartSoon;
+                                var thread = new Thread(() =>
+                                {
+                                    foreach (var file in Directory.GetFiles(Replay.unityModEntry.Path))
+                                    {
+                                        try
+                                        {
+                                            File.Delete(file);
+                                        }
+                                        catch
+                                        {
+                                            Replay.Log("Cant delete "+file);
+                                        }
+                                    }
+                                    
+                                    ZipUtil.Unzip(Path.Combine(Path.GetTempPath(), "replay-new.zip"), UnityModManager.modsPath);
+                                    File.Delete(Path.Combine(Path.GetTempPath(), "replay-new.zip"));
+                                    
+                                    Application.Quit();
+                                    Process.Start("steam://rungameid/977950");
+                                });
+                                thread.IsBackground = true;
+                                thread.Start();
+
+ 
+                                    
+                            };
+                            return false;
+                        }, () =>
+                        {
+                            scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
+                            return true;
+                        },RDString.language);
+                }
             }
             ReplayViewingTool.UpdateLayout();
             scnReplayIntro.scnReplayIntro.OnStart = ReplaySelectScene.Awake;
             scnReplayIntro.scnReplayIntro.OnQuit = ReplaySelectScene.OnQuit;
+            scnReplayIntro.scnReplayIntro.OnLoad = ReplaySelectScene.OnLoad;
 
             var args = Environment.GetCommandLineArgs();
             if (args.Length > 1)
