@@ -18,6 +18,7 @@ using Replay.Functions.Watching;
 using TinyJson;
 using UnityEngine;
 using UnityModManagerNet;
+using Random = System.Random;
 
 namespace Replay.Functions.Core
 {
@@ -87,6 +88,13 @@ namespace Replay.Functions.Core
             }
             return result;
         }
+        
+        public static string RandomString(int length)
+        {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[new Random().Next(s.Length)]).ToArray());
+        }
 
 
         public static List<UnityModManager.ModEntry> GetKeyviewers()
@@ -129,7 +137,11 @@ namespace Replay.Functions.Core
             {
                 var isLast = n == fields.Length;
                 var v = f.GetValue(rpl);
-                if (v == null) continue;
+                if (v == null)
+                {
+                    n++;
+                    continue;
+                }
                 if (v is bool b)
                 {
                     if(b)
@@ -190,7 +202,6 @@ namespace Replay.Functions.Core
                             str += ", ";
                     }
                 }
-
                 n++;
             }
 
@@ -291,6 +302,8 @@ namespace Replay.Functions.Core
             return string.Concat(filename.Split(Path.GetInvalidFileNameChars()));
         }
 
+
+
         public static void RegisterRPL()
         {
             var appidPath = $"{Path.GetFullPath(".")}\\steam_appid.txt";
@@ -317,6 +330,24 @@ namespace Replay.Functions.Core
             {
                 
                 var stream = new FileStream(Path.Combine(Replay.ReplayOption.savedPath, RemoveInvalidChars(replayName)), FileMode.Create);
+                var deserializer = new BinaryFormatter();
+                deserializer.Serialize(stream, replayInfo); 
+                stream.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                throw new Exception(Replay.CurrentLang.cantSave);
+
+            }
+        }
+        
+        public static void SaveReplayWithPath(string path, ReplayInfo replayInfo)
+        {
+            try
+            {
+                
+                var stream = new FileStream(path, FileMode.Create);
                 var deserializer = new BinaryFormatter();
                 deserializer.Serialize(stream, replayInfo); 
                 stream.Close();

@@ -18,6 +18,9 @@
       <Reference Include="Assembly-CSharp-firstpass">
         <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       </Reference>
+      <Reference Include="DotNetZip">
+        <HintPath>..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\DotNetZip.dll</HintPath>
+      </Reference>
       <Reference Include="DOTween">
         <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\DOTween.dll</HintPath>
       </Reference>
@@ -35,6 +38,10 @@
       </Reference>
       <Reference Include="ReplayUI">
         <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\Mods\Replay\ReplayUI.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Windows" />
+      <Reference Include="System.Windows.Forms">
+        <HintPath>..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\System.Windows.Forms.dll</HintPath>
       </Reference>
       <Reference Include="Unity.Addressables">
         <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\Unity.Addressables.dll</HintPath>
