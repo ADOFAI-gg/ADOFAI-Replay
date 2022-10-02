@@ -17,7 +17,6 @@ namespace Replay.UI
                 { 
                     if (!ReplayUIUtils._swiping)
                     {
-
                         ReplayUIUtils.Hide();
                     }
                 }

@@ -47,6 +47,8 @@ namespace Replay
             ? v
             : _languages[SystemLanguage.English];
 
+        public static string ClientID;
+
         static Replay()
         {
             var harmony = new Harmony("1.replay.first.patches");
@@ -57,6 +59,8 @@ namespace Replay
                 var prefix2 = typeof(NullPointerPreventionPatches).GetMethod("OverlayerSafeNull", AccessTools.all);
                 harmony.Patch(originalOverlayer, prefix: new HarmonyMethod(prefix2));
             }
+            
+           
             //Debug.Log(overlayer);
 
         }
@@ -64,6 +68,7 @@ namespace Replay
         
         public static void Setup(UnityModManager.ModEntry modEntry)
         {
+
             /*
             var overlayer = UnityModManager.FindMod("Overlayer");
             var index = UnityModManager.modEntries.IndexOf(overlayer);
@@ -89,6 +94,7 @@ namespace Replay
             
             unityModEntry = modEntry;
             ReplayAssets.Init();
+            
 
             if (!Directory.Exists(Path.Combine(Application.dataPath, "Replays")))
                 Directory.CreateDirectory(Path.Combine(Application.dataPath, "Replays"));
@@ -101,9 +107,15 @@ namespace Replay
             
             ReplayUtils.RegisterRPL();
 
-
+            
+            ClientID = SystemInfo.deviceUniqueIdentifier;
+            
+            
+            
         }
-
+        
+        
+      
         private static void OnGUI(UnityModManager.ModEntry modEntry)
         {
             if (_title == null)

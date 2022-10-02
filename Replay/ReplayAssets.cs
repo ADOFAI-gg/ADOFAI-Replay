@@ -16,7 +16,7 @@ namespace Replay
 
         public static void Init()
         {
-            var asm = Assembly.LoadFile(Path.Combine(Replay.unityModEntry.Path, "ReplayUI.dll"));
+            var asm = Assembly.Load(File.ReadAllBytes(Path.Combine(Replay.unityModEntry.Path, "ReplayUI.dll")));
             Assets = AssetBundle.LoadFromFile(Path.Combine(Replay.unityModEntry.Path, "replayassets.assets"));
             Scenes = AssetBundle.LoadFromFile(Path.Combine(Replay.unityModEntry.Path, "replayscenes.assets"));
 
