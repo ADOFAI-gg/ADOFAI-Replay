@@ -90,7 +90,16 @@ namespace Replay.Functions.Watching
             WatchReplay.SetPlanetColor(scrController.instance.chosenplanet, ReplayBasePatches._playingReplayInfo);
             WatchReplay.SetPlanetColor(scrController.instance.chosenplanet.other, ReplayBasePatches._playingReplayInfo);
         }
-        
+
+
+        [HarmonyPatch(typeof(scrMistakesManager), "SaveCustom")]
+        [HarmonyPrefix]
+        public static bool FixSaveCustom(ref EndLevelType __result)
+        {
+            if (!WatchReplay.IsPlaying) return true;
+            __result = EndLevelType.None;
+            return false;
+        }
         
         [HarmonyPatch(typeof(scrUIController), "WipeFromBlack")]
         [HarmonyPrefix]
