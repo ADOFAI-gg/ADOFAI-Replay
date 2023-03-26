@@ -23,7 +23,7 @@ namespace Replay.UI
             }
             
         }
-
+        
 
         private void OnApplicationQuit()
         {

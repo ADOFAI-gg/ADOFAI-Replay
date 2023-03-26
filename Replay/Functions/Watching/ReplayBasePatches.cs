@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using DG.Tweening;
 using Discord;
@@ -19,12 +20,16 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityModManagerNet;
+using Debug = System.Diagnostics.Debug;
+using Object = UnityEngine.Object;
 
 namespace Replay.Functions.Menu
 {
     [HarmonyPatch]
     public class ReplayBasePatches
     {
+        private const int max_range = 50;
+        
         private static bool _forceMove;
         private static bool _forcePlay;
         private static bool _forceColor;
@@ -34,11 +39,13 @@ namespace Replay.Functions.Menu
         private static bool _dontDie;
         private static int _index;
         private static int _pressIndex;
+        private static bool _isOldReplay;
         private static UnityModManager.ModEntry _noStopModModEntry;
         
 
         private static List<Tween> _requestedHold = new List<Tween>();
-        
+        public static Dictionary<int, BallBorder> _ballBorders = new Dictionary<int, BallBorder>();
+
         internal static bool _paused;
         internal static bool _progressDisplayerCancel;
         internal static ReplayInfo _playingReplayInfo;
@@ -65,6 +72,13 @@ namespace Replay.Functions.Menu
         // reset all data
         public static void Reset()
         {
+            //BallBorder.CreatedBallBorders.Clear();
+            _ballBorders.Clear();
+            foreach (var n in Object.FindObjectsOfType<BallBorder>())
+            {
+                n.gameObject.SetActive(false);
+            }
+            
             if (_forceMove)
             {
                 _forceMove = false;
@@ -75,7 +89,8 @@ namespace Replay.Functions.Menu
                 h.Kill();
             _requestedHold.Clear();
 
-            _playingReplayInfo = null;
+            
+                _playingReplayInfo = null;
             _index = 0;
             _dontDie = false;
             Cursor.visible = true;
@@ -99,7 +114,10 @@ namespace Replay.Functions.Menu
             }
 
             KeyboradHook.OnEndInputs();
+            
+            
             GC.Collect();
+            
 
             /*
             if (!Replay.IsUsingNoStopMod) return;
@@ -114,6 +132,40 @@ namespace Replay.Functions.Menu
         {
             return _playingReplayInfo.Tiles.Length - 1 < _index || _index < 0;
         }
+        
+
+        /*
+        [HarmonyPatch(typeof(scrPlanet))]
+        [HarmonyPatch("Update_RefreshAngles")]
+        public static class Dialog_FormCaravan_CheckForErrors_Patch
+        {
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var started = false;
+                CodeInstruction prev = null;
+                var list = new List<CodeInstruction>();
+                
+
+                foreach (var i in instructions)
+                {
+                    if (!started)
+                        list.Add(i);
+                    
+
+                    if (prev != null)
+                    {
+                        if (prev.opcode == OpCodes.Ldsfld &&
+                            prev.operand?.ToString() == "System.Boolean d_stationary" && i.opcode == OpCodes.Brtrue_S)
+                            started = true;
+                        if (i.opcode == OpCodes.Stfld && i.operand?.ToString() == "System.Double angle")
+                            started = false;
+
+                    }
+                    prev = i;
+                }
+                return list.AsEnumerable();
+            }
+        }*/
 
         // Planet angle when pressed by player
         private static double GetAngle()
@@ -143,6 +195,7 @@ namespace Replay.Functions.Menu
             scrController.instance.failbar.multipressCounter = 0;
             scrController.instance.failbar.overloadCounter = 0;
             
+            
 
             if (scrController.instance.currentSeqID == r.SeqID)
             {
@@ -151,6 +204,43 @@ namespace Replay.Functions.Menu
                     scrController.instance.chosenplanet.angle = angle;
                     scrController.instance.chosenplanet.cachedAngle = angle;
                 }
+                
+                //if(Replay.ReplayOption.showInputTiming) BallBorder.Create(scrController.instance.chosenplanet.other.transform.position,r.Hitmargin);
+
+                if (Replay.ReplayOption.showInputTiming && _isOldReplay)
+                {
+                    var b = BallBorder.Create(scrController.instance.chosenplanet.other.transform.position, r.Hitmargin,
+                        _index);
+                    _ballBorders[_index] = b;
+                }
+
+
+
+                if (Replay.ReplayOption.showInputTiming &&
+                    ReplayUtils.CanGet(_playingReplayInfo.Tiles.Length, _index + max_range) && !_isOldReplay)
+                    {
+                        if (!_ballBorders.TryGetValue(_index + max_range, out var v))
+                        {
+                            var t = _playingReplayInfo.Tiles[_index + max_range];
+                            var b = BallBorder.Create(
+                                ReplayUtils.MiniVector2UnityVector(t.HitTimingPosition),
+                                t.Hitmargin, 1f);
+                            _ballBorders[_index + max_range] = b;
+                        }
+  
+                    }
+                    
+                    if (Replay.ReplayOption.showInputTiming &&
+                        ReplayUtils.CanGet(_playingReplayInfo.Tiles.Length, _index - max_range))
+                    {
+                        if (_ballBorders.TryGetValue(_index - max_range, out var v2))
+                        {
+                            v2.gameObject.SetActive(false);
+                        }
+  
+                    }
+                
+
                 _replayPlanetHit = true;
                 scrController.instance.noFailInfiniteMargin = r.NoFailHit;
                 scrController.instance.Hit();
@@ -194,6 +284,7 @@ namespace Replay.Functions.Menu
             _playingReplayInfo = replayInfo;
             _index = 0;
             _pressIndex = 0;
+            _isOldReplay = ReplayUtils.IsEmptyVector(replayInfo.Tiles[1].HitTimingPosition);
             Cursor.visible = true;
 
             GCS.speedTrialMode = false;
@@ -201,7 +292,7 @@ namespace Replay.Functions.Menu
             GCS.nextSpeedRun = replayInfo.Speed;
             WatchReplay.PatchedPitch = GCS.currentSpeedTrial;
             
-
+            //BallBorder.CreatedBallBorders.Clear();
 
             //DisableNoStopMod();
         }
@@ -222,6 +313,9 @@ namespace Replay.Functions.Menu
             _requestedHold.Clear();
 
             WatchReplay.RestartLevelAt(seqID);
+            //_ballBorders.Clear();
+            
+            //BallBorder.CreatedBallBorders.Clear();
         }
 
         // when is the hit timing
@@ -275,8 +369,12 @@ namespace Replay.Functions.Menu
             GCS.checkpointNum = WatchReplay.OfficialStartAt;
             scrController.instance.chosenplanet.hittable = false;
             scrController.instance.chosenplanet.other.hittable = false;
+            
+            //BallBorder.CreatedBallBorders.Clear();
+
         }
-        
+
+       
 
 
         [HarmonyPatch(typeof(CustomLevel), "Play")]
@@ -290,6 +388,9 @@ namespace Replay.Functions.Menu
             seqID = _playingReplayInfo.StartTile;
             GCS.checkpointNum = _playingReplayInfo.StartTile;
             scrController.instance.currentSeqID = _playingReplayInfo.StartTile;
+            
+            //BallBorder.CreatedBallBorders.Clear();
+
         }
 
 
@@ -307,6 +408,9 @@ namespace Replay.Functions.Menu
 
             GCS.checkpointNum = _playingReplayInfo.StartTile;
             scrController.instance.currentSeqID = _playingReplayInfo.StartTile;
+            
+            //BallBorder.CreatedBallBorders.Clear();
+
         }
 
 
@@ -342,6 +446,11 @@ namespace Replay.Functions.Menu
             ReplayUIUtils.DoSwipe(() => { SceneManager.LoadScene("scnReplayIntro"); });
                 _progressDisplayerCancel = true;
                 scrUIController.instance.WipeToBlack(WipeDirection.StartsFromLeft);
+                
+                BallBorder.CreatedBallBorders2.Clear();
+            BallBorder.CreatedBallBorders.Clear();
+            _ballBorders.Clear();
+
 
             return false;
         }
@@ -474,15 +583,45 @@ namespace Replay.Functions.Menu
             WatchReplay.IsLoading = false;
             WatchReplay.IsPlanetDied = false;
 
-            if (WatchReplay.IsPaused)
+            WatchReplay.IsPaused = true;
+            ReplayViewingTool.TogglePause();
+
+            GCS.perfectOnlyMode = false;
+
+            song_loading = false;
+            if (YoutubeStreamAPI.Enabled)
             {
-                Time.timeScale = 0;
-                scrController.instance.audioPaused = true;
+                if (!string.IsNullOrEmpty((string)CustomLevel.instance.levelData.songSettings["songURL"]))
+                {
+                    var a = typeof(CustomLevel).GetField("currentSongKey",
+                        BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (YoutubeStreamAPI.newSongKey != (string)a.GetValue(CustomLevel.instance))
+                    {
+                        song_loading = true;
+                        scnEditor.instance.StartCoroutine(WaitSongLoading(___text, a));
+                    }
+                }
             }
-            else
+      
+            
+            
+            
+            _ballBorders.Clear();
+            for (var n = 0; n < max_range; n++)
             {
-                Time.timeScale = 1;
-                scrController.instance.audioPaused = false;
+                if (Replay.ReplayOption.showInputTiming &&
+                    ReplayUtils.CanGet(_playingReplayInfo.Tiles.Length, _index + n) && !_isOldReplay)
+                {
+                    if (!_ballBorders.TryGetValue(_index + n, out var v))
+                    {
+                        var t = _playingReplayInfo.Tiles[_index + n];
+                        var b = BallBorder.Create(
+                            ReplayUtils.MiniVector2UnityVector(t.HitTimingPosition),
+                            t.Hitmargin, 1f);
+                        _ballBorders[_index + n] = b;
+                    }
+
+                }
             }
         }
         
@@ -538,7 +677,30 @@ namespace Replay.Functions.Menu
             }
         }
 
-        
+
+        private static bool song_loading;
+        private static IEnumerator WaitSongLoading(Text text, FieldInfo f)
+        {
+            song_loading = true;
+            text.text = Replay.CurrentLang.loading;
+            yield return new WaitUntil(() => YoutubeStreamAPI.newSongKey == (string)f.GetValue(CustomLevel.instance));
+            text.text = Replay.CurrentLang.pressToPlay;
+            song_loading = false;
+        }
+
+        [HarmonyPatch(typeof(scrController), "ValidInputWasTriggered")]
+        [HarmonyPrefix]
+        public static bool PreventValidInputWasTriggered(ref bool __result)
+        {
+            if (!WatchReplay.IsPlaying) return true;
+            if (song_loading)
+            {
+                __result = false;
+                return false;
+            }
+
+            return true;
+        }
         
         
         
@@ -547,21 +709,34 @@ namespace Replay.Functions.Menu
         public static void ResetSceneInReplayingPatch()
         {
             if (!WatchReplay.IsPlaying) return;
+   
             Reset();
         }
         
-        
+
         [HarmonyPatch(typeof(scnEditor), "SwitchToEditMode")]
         [HarmonyPrefix]
-        public static void SwitchToEditMode(bool clsToEditor)
+        public static bool SwitchToEditMode(bool clsToEditor)
         {
-            if (_playingReplayInfo == null) return;
-            if (!clsToEditor || _playingReplayInfo.IsOfficialLevel) return;
+            if (_playingReplayInfo == null) return true;
+            if (!clsToEditor || _playingReplayInfo.IsOfficialLevel) return true;
 
             var startTile = WatchReplay.IsDeathCam ? SaveReplayPatches._cachedStartTile : _playingReplayInfo.StartTile;
+
+            foreach (var b in BallBorder.CreatedBallBorders2)
+            {
+                Object.DestroyImmediate(b.gameObject);
+            }
+            BallBorder.CreatedBallBorders2.Clear();
+            
+            BallBorder.CreatedBallBorders.Clear();
+            _ballBorders.Clear();
             _lastSeqID = startTile;
             scnEditor.instance.selectedFloorCached = startTile;
             scrController.instance.currentSeqID = startTile;
+            
+
+            return true;
         }
         
         
