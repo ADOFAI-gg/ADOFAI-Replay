@@ -7,6 +7,7 @@ using HarmonyLib;
 using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
 using Replay.Functions.Menu;
+using Replay.UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
@@ -126,12 +127,26 @@ namespace Replay.Functions.Watching
             }
 
         }
+        
+        public static bool CheckObjectIsInCamera(GameObject _target)
+        {
+            var selectedCamera = scrCamera.instance.camobj;
+            var screenPoint = selectedCamera.WorldToViewportPoint(_target.transform.position);
+            var onScreen = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+            return onScreen;
+        }
 
         
         // Play a replay based on the replayInfo
         public static void Play(ReplayInfo rpl, bool deathcam = false)
         {
             IsDeathCam = deathcam;
+            
+            if(scrController.instance != null)
+                scrController.instance.audioPaused = false;
+            Time.timeScale = 1;
+            BallBorder.CreatedBallBorders.Clear();
+            
             if (rpl.IsOfficialLevel)
             {
                 GCS.checkpointNum = rpl.StartTile;
@@ -157,6 +172,8 @@ namespace Replay.Functions.Watching
                 GCS.standaloneLevelMode = true;
                 GCS.checkpointNum = rpl.StartTile;
             }
+            
+            
 
             ReplayBasePatches.Start(rpl);
             KeyboradHook.OnStartInputs();

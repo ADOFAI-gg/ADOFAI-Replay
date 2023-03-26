@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using HarmonyLib;
+using Replay.Functions.Core;
 using Replay.Functions.Menu;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,6 +26,7 @@ namespace Replay.Functions.Watching
             if (!WatchReplay.IsPlaying) return;
             if (scrController.instance.paused != ReplayBasePatches._paused)
                 scrController.instance.paused = ReplayBasePatches._paused;
+            
         }
 
         
@@ -62,6 +64,7 @@ namespace Replay.Functions.Watching
             if (!WatchReplay.IsPlaying) return;
             scrController.instance.paused = ReplayBasePatches._paused;
             ReplayBasePatches._paused = !ReplayBasePatches._paused;
+            
         }
         
         [HarmonyPatch(typeof(ADOBase), "GoToCalibration")]
@@ -84,6 +87,9 @@ namespace Replay.Functions.Watching
             {
                 if (b is PauseButton button)
                 {
+                    if (button.rdString == "pauseMenu.levelEditor" &&
+                        !string.IsNullOrEmpty((string)CustomLevel.instance.levelData.songSettings["songURL"]))
+                        return false;
                     return !(button.rdString == "pauseMenu.restart" || button.rdString == "pauseMenu.practice" ||
                              button.rdString == "pauseMenu.settings" || button.rdString == "pauseMenu.next" ||
                              button.rdString == "pauseMenu.previous");

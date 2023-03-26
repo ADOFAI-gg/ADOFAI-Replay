@@ -94,10 +94,13 @@ namespace Replay.Functions.Watching
 
         [HarmonyPatch(typeof(scrMistakesManager), "SaveCustom")]
         [HarmonyPrefix]
-        public static bool FixSaveCustom(ref EndLevelType __result)
+        public static bool FixSaveCustom(ref scrMistakesManager.EndLevelInfo __result)
         {
             if (!WatchReplay.IsPlaying) return true;
-            __result = EndLevelType.None;
+            var result = default(scrMistakesManager.EndLevelInfo);
+            result.endLevelType = EndLevelType.None;
+            result.newBestType = NewBestType.None;
+            __result = result;
             return false;
         }
         
@@ -108,7 +111,7 @@ namespace Replay.Functions.Watching
             if (WatchReplay.IsPlaying)
                 scrUIController.wipeDirection = WipeDirection.StartsFromRight;
             
-            scrSfx.instance.PlaySfx(SfxSound.ScreenWipeIn, 0.5f);
+            scrSfx.instance.PlaySfx(SfxSound.ScreenWipeIn,MixerGroup.Fallback, 0.5f);
             __instance.transitionPanel.gameObject.SetActive(true);
             __instance.transitionPanel.color = Color.black;
             RectTransform rectTransform = __instance.transitionPanel.rectTransform;

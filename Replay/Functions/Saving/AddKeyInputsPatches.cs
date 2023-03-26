@@ -6,6 +6,7 @@ using Newgrounds;
 using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
 using Replay.Functions.Watching;
+using SkyHook;
 using UnityEngine;
 using UnityModManagerNet;
 
@@ -43,7 +44,9 @@ namespace Replay.Functions.Saving
             { KeyCode.F11, true },
             { KeyCode.F12, true },
         };
-        
+
+        public static Dictionary<KeyLabel, KeyCode> KeyLabelToKeyCode = new Dictionary<KeyLabel, KeyCode>();
+
         private static KeyCode GetInput()
         {
             var keyCode = KeyCode.None;
@@ -109,8 +112,13 @@ namespace Replay.Functions.Saving
             foreach (var obj in RDInput.GetMainPressKeys())
             {
                 if (n == 4) break;
-                if (obj is KeyCode code)
+                if (obj.value is KeyCode || obj.value is AsyncKeyCode)
                 {
+                    var code = KeyCode.None;
+                    if (obj.value is KeyCode value)
+                        code = value;
+                    else if (obj.value is AsyncKeyCode value2)
+                        code = KeyLabelToKeyCode[value2.label];
                     if (!pressed.Contains(code))
                     {
                         if (AdofaiTweaksAPI.IsEnabled)
@@ -176,17 +184,20 @@ namespace Replay.Functions.Saving
                 AutoHit = RDC.auto || flag,
                 HeldTime = Time.unscaledDeltaTime,
                 Key = keyCode,
+                HitTimingPosition = ReplayUtils.UnityVector2MiniVector(planet.other.transform.position)
             };
             if(keyCode != KeyCode.None) _heldPressInfo[keyCode] = t;
             if (Replay.ReplayOption.CanICollectReplayFile == 1)
             {
+                /*
                 t.HitTime = Time.timeAsDouble - _startTime;
                 t.RealHitAngle = planet.angle;
-                t.TargetAngle = Math.Abs(planet.targetExitAngle) > 0.001? planet.targetExitAngle:0;
+                t.TargetAngle = Math.Abs(planet.targetExitAngle) > 0.001? planet.targetExitAngle:0;*/
                 t.IsFreeroam = controller.currFloor.freeroam;
                 t.RelativeFloorAngle = Mathf.RoundToInt((float)(scrController.instance.currentSeqID == 0
                     ? (controller.currFloor.exitangle * (180 / Math.PI) + 90)
                     : ((controller.currFloor.angleLength * (180 / Math.PI)) % 360)));
+                t.Speed = scrController.instance.speed;
             }
             
             
