@@ -153,7 +153,7 @@ namespace Replay.UI
                             ReplayViewingTool.UpdateLayout();
                             return;
                         }
-                        if (ShareCount <= 10)
+                        if (ShareCount <= 50)
                         {
                             ReplayUI.Instance.ShowNotification(Replay.CurrentLang.replayModText, Replay.CurrentLang.reallyShareThisReplay,
                                 () =>
@@ -337,7 +337,7 @@ namespace Replay.UI
                 ShareCount = 0;
             if (ShareCount > 0)
                 scnReplayIntro.scnReplayIntro.Instance.ReplayTitle.text = Replay.CurrentLang.replayListTitle +
-                                                                          $"\n<size=15>{Replay.CurrentLang.sharedReplayCount} {ShareCount} / 10 </size>";
+                                                                          $"\n<size=15>{Replay.CurrentLang.sharedReplayCount} {ShareCount} / 50 </size>";
             else
                 scnReplayIntro.scnReplayIntro.Instance.ReplayTitle.text = Replay.CurrentLang.replayListTitle;
             GlobalLanguage.ReplayListTitle = scnReplayIntro.scnReplayIntro.Instance.ReplayTitle.text;
