@@ -69,6 +69,10 @@
             restartSoon = "곧 재시작 됩니다...";
             japaneseTranslate = "일본어 번역";
 
+            showInputTiming = "입력 타이밍 표시";
+            saveRealComplete = "처음부터 끝까지 레벨을 깰 때 저장하기 (0%~100%)";
+            replayOption = "리플레이 옵션";
+
             UnsetTextSetting();
 
 

@@ -70,7 +70,10 @@
             newReplayVersion = "New replay version!";
             restartSoon = "It will restart soon...";
             japaneseTranslate = "Japanese translation";
-            
+            replayOption = "Replay Option";
+
+            showInputTiming = "Display input timing";
+            saveRealComplete = "Save when you complete the level from start to finish (0%~100%)";
             UnsetTextSetting();
 
         }

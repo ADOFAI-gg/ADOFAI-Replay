@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using JetBrains.Annotations;
+using UnityEngine;
 
 namespace Replay.Languages
 {
@@ -90,6 +91,12 @@ namespace Replay.Languages
         public string restartSoon;
         //곧 재시작 됩니다...
         public string japaneseTranslate;
+
+        public string showInputTiming;
+
+        public string replayOption;
+
+        public string saveRealComplete;
 
         public void UnsetTextSetting()
         {

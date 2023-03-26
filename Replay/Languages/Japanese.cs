@@ -4,7 +4,7 @@
     {
         public Japanese()
         {
-            pressToPlay = "スペースキーを押すと\nリプレイが始まります";
+            pressToPlay = "どれかのキーを押して再生";
             replayModText = "リプレイ";
             replayingText = "再生中";
             cantFindPath = "経路が見つかりませんでした。";
@@ -71,6 +71,10 @@
             newReplayVersion = "新しいReplayバージョン！";
             restartSoon = "まもなく再起動します...";
             japaneseTranslate = "日本語訳";
+            replayOption = "リプレイ設定";
+            
+            showInputTiming = "入力タイミング表示";
+            saveRealComplete = "最初から最後までレベルを完了したときに保存する (0%~100%)";
             
             UnsetTextSetting();
 
