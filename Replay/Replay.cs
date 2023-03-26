@@ -8,10 +8,12 @@ using HarmonyLib;
 using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
 using Replay.Functions.Menu;
+using Replay.Functions.Saving;
 using Replay.Functions.Watching;
 using Replay.Languages;
 using Replay.UI;
 using SFB;
+using SkyHook;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityModManagerNet;
@@ -21,6 +23,7 @@ namespace Replay
     public static class Replay
     {
         private static bool _saveOptionOpend;
+        private static bool _replayOptionOpend;
         private static bool _keyviewerOptionOpend;
         private static bool _registerKey;
         private static bool _registerKeyDeathcam;
@@ -40,7 +43,6 @@ namespace Replay
         public static bool IsDebug = true;
         public static bool IsAlpha;
         public static KeyCode[] AllKeyCodes;
-        public static bool IsUsingNoStopMod;
         public static ReplayOption ReplayOption = new ReplayOption();
         public static Dictionary<string, KeyviewerInput> KeyViewerOnOff = new Dictionary<string, KeyviewerInput>();
         public static LocalizedText CurrentLang => _languages.TryGetValue(RDString.language, out var v)
@@ -68,6 +70,9 @@ namespace Replay
         
         public static void Setup(UnityModManager.ModEntry modEntry)
         {
+
+            //var keyCodes = typeof(KeyCode).GetEnumNames();
+
 
             /*
             var overlayer = UnityModManager.FindMod("Overlayer");
@@ -129,6 +134,19 @@ namespace Replay
                 _registerKeyButton.hover.textColor = Color.red;
                 _registerKeyButton.focused.textColor = Color.red;
                 _registerKeyButton.active.textColor = Color.red;
+            }
+            
+            if (GUILayout.Button($"{(_replayOptionOpend ? "◢" : "▶")} {CurrentLang.replayOption}", _title))
+                _replayOptionOpend = !_replayOptionOpend;
+
+            if (_replayOptionOpend)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(20);
+                ReplayOption.showInputTiming = GUILayout.Toggle(ReplayOption.showInputTiming, CurrentLang.showInputTiming);
+                GUILayout.EndHorizontal();
+                
+                GUILayout.Label("");
             }
             
             if (GUILayout.Button($"{(_deathCamOptionOpend ? "◢" : "▶")} {CurrentLang.deathcamOption}", _title))
@@ -194,6 +212,12 @@ namespace Replay
                 GUILayout.Space(20);
                 ReplayOption.disableOttoSave = GUILayout.Toggle(ReplayOption.disableOttoSave, CurrentLang.disableOttoSave);
                 GUILayout.EndHorizontal();
+                
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(20);
+                ReplayOption.saveRealComplete = GUILayout.Toggle(ReplayOption.saveRealComplete, CurrentLang.saveRealComplete);
+                GUILayout.EndHorizontal();
+
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(20);
@@ -240,10 +264,11 @@ namespace Replay
                     }
                 }
                 
+                /*
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(20);
                 ReplayOption.replayCount20delte = GUILayout.Toggle(ReplayOption.replayCount20delte, CurrentLang.replayCount20delete);
-                GUILayout.EndHorizontal();
+                GUILayout.EndHorizontal();*/
                 
                 GUILayout.Label("");
             }
@@ -319,6 +344,9 @@ namespace Replay
                     scrUIController.instance.WipeToBlack(WipeDirection.StartsFromLeft);
                 }
 
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+                
                 ReplayMenuPatches._created = false;
 
                 _replayHarmony.UnpatchAll(modEntry.Info.Id);

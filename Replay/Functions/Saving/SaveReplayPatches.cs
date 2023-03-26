@@ -49,6 +49,7 @@ namespace Replay.Functions.Saving
             var floor = scrLevelMaker.instance.listFloors;
             _replayInfo.EndTile = scrController.instance.currentSeqID;
             _replayInfo.AllTile = floor.Count;
+            _replayInfo.BPM = scrConductor.instance.bpm;
 
             var official = scrController.instance != null && scrController.instance.gameworld &&
                            scnEditor.instance == null;
@@ -161,12 +162,7 @@ namespace Replay.Functions.Saving
                     Difficulty = _replayInfo.Difficulty,
                     Pitch = _replayInfo.Speed,
                     Tiles = _replayInfo.Tiles,
-                    ArtistName = _replayInfo.ArtistName,
-                    AuthorName = _replayInfo.AuthorName,
-                    SongName = _replayInfo.SongName,
-                    IsOfficialLevel = _replayInfo.IsOfficialLevel,
-                    EndSeqID = _replayInfo.EndTile,
-                    StartSeqID = _replayInfo.StartTile
+                    BPM = _replayInfo.BPM,
                 };
 
                 if (Replay.ReplayOption.CanICollectReplayFile == 1)
@@ -304,11 +300,21 @@ namespace Replay.Functions.Saving
             if (_replayInfo == null) return;
             
             _states = CustomControllerStates.Won;
-            if (Replay.ReplayOption.saveEveryLevelComplete || (Replay.ReplayOption.saveBySpecifiedKey &&
-                                                               Input.GetKeyDown((KeyCode)Replay.ReplayOption
-                                                                   .specifiedKeyCode)))
+            if (Replay.ReplayOption.saveRealComplete && _replayInfo.StartTile == 0)
+            {
                 Save();
-            
+            }
+            else
+            {
+
+                if (Replay.ReplayOption.saveEveryLevelComplete || (Replay.ReplayOption.saveBySpecifiedKey &&
+                                                                   Input.GetKeyDown((KeyCode)Replay.ReplayOption
+                                                                       .specifiedKeyCode)))
+                    Save();
+            }
+
+
+
         }
 
         

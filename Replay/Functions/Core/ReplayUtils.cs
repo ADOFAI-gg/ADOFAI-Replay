@@ -45,12 +45,35 @@ namespace Replay.Functions.Core
             if (index < 0) return lists[0];
             return lists[index];
         }
+
+
+
+        public static bool IsEmptyVector(NiceUnityVector v)
+        {
+            return v.x == 0 && v.y == 0;
+        }
+
+        public static NiceUnityVector UnityVector2MiniVector(Vector3 v)
+        {
+            return new NiceUnityVector(v.x, v.y);
+        }
+        
+        public static Vector3 MiniVector2UnityVector(NiceUnityVector v)
+        {
+            return new Vector3(v.x, v.y, 0);
+        }
         
         public static scrFloor GetSafeList(List<scrFloor> lists, int index)
         {
             if (lists.Count - 1 < index) return lists[lists.Count - 1];
             if (index < 0) return lists[0];
             return lists[index];
+        }
+        
+        public static bool CanGet(int length, int index)
+        {
+            if (length - 1 < index) return false;
+            return index >= 0;
         }
         
         public static HitMargin GetHitMargin(float hitangle, float refangle, bool isCW, float bpmTimesSpeed, float conductorPitch, double marginScale = 1.0)
@@ -135,13 +158,19 @@ namespace Replay.Functions.Core
 
             foreach (var f in fields)
             {
-                var isLast = n == fields.Length;
+                var isLast = n == fields.Length || f.Name == "HitAngleDiff";
                 var v = f.GetValue(rpl);
                 if (v == null)
                 {
                     n++;
                     continue;
                 }
+
+                if (f.Name == "SeqID") continue;
+                if (f.Name == "HitTimingPosition") continue;
+                if (f.Name == "Key") continue;
+                if (f.Name == "HeldTime") continue;
+                
                 if (v is bool b)
                 {
                     if(b)

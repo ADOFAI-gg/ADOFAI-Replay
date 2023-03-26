@@ -24,6 +24,7 @@ namespace Replay.Functions.Core.Types
         public TileInfo[] Tiles;
         public bool Shared;
         public bool MyReplay;
+        public float BPM;
 
         public string ReplayCode;
         //public PressInfo[] Presses;

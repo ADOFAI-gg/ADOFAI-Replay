@@ -50,12 +50,24 @@ namespace Replay.UI
         // UpdateLayout
         public static void UpdateLayout()
         {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(ReplayUI.Instance.BbiBbiGameobject.transform.Find("TextLayout").GetComponent<RectTransform>());
-            LayoutRebuilder.ForceRebuildLayoutImmediate(ReplayUI.Instance.BbiBbiGameobject.transform.Find("TextLayout").Find("No").GetComponent<RectTransform>());
-            LayoutRebuilder.ForceRebuildLayoutImmediate(ReplayUI.Instance.BbiBbiGameobject.transform.Find("TextLayout").Find("Yes").GetComponent<RectTransform>());
+            if (ReplayUI.Instance != null)
+            {
+                if (ReplayUI.Instance.BbiBbiGameobject != null)
+                {
+                    var t = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.GetComponent<RectTransform>();
+                    if(t!=null)
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(t);
+                    var t2 = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.Find("No")?.GetComponent<RectTransform>();
+                    if(t2!=null)
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(t2);
+                    var t3 = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.Find("Yes")?.GetComponent<RectTransform>();
+                    if(t3!=null)
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(t3);
+                }
+            }
         }
 
-        
+
         // Find tiles for that time
         public static int FindFloorBySecond(double currentTime, int startTile, int endTile)
         {
