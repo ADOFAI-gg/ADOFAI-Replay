@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 
-namespace Replay
+namespace ReplayLoader
 {
     public static class ReplayAssets
     {
@@ -16,9 +16,9 @@ namespace Replay
 
         public static void Init()
         {
-            var asm = Assembly.Load(File.ReadAllBytes(Path.Combine(Replay.unityModEntry.Path, "ReplayUI.dll")));
-            Assets = AssetBundle.LoadFromFile(Path.Combine(Replay.unityModEntry.Path, "replayassets.assets"));
-            Scenes = AssetBundle.LoadFromFile(Path.Combine(Replay.unityModEntry.Path, "replayscenes.assets"));
+            var asm = Assembly.Load(File.ReadAllBytes(Path.Combine(Loader.unityModEntry.Path, "ReplayUI.dll")));
+            Assets = AssetBundle.LoadFromFile(Path.Combine(Loader.unityModEntry.Path, "replayassets.assets"));
+            Scenes = AssetBundle.LoadFromFile(Path.Combine(Loader.unityModEntry.Path, "replayscenes.assets"));
 
             PauseImage = Assets.LoadAsset<Sprite>("assets/textures/ingameui/pause1.png");
             ResumeImage = Assets.LoadAsset<Sprite>("assets/textures/ingameui/pause2.png");

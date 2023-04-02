@@ -1,4 +1,4 @@
-﻿namespace Replay.Languages
+﻿namespace ReplayLoader.Languages
 {
     public class Japanese : LocalizedText
     {
@@ -75,6 +75,8 @@
             
             showInputTiming = "入力タイミング表示";
             saveRealComplete = "最初から最後までレベルを完了したときに保存する (0%~100%)";
+
+            copyText = "エラーメッセージのコピー";
             
             UnsetTextSetting();
 

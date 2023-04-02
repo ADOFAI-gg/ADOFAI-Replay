@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Replay.Languages
+namespace ReplayLoader.Languages
 {
     public class LocalizedText
     {
@@ -97,6 +97,8 @@ namespace Replay.Languages
         public string replayOption;
 
         public string saveRealComplete;
+
+        public string copyText;
 
         public void UnsetTextSetting()
         {

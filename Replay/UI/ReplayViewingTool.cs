@@ -5,6 +5,7 @@ using Replay.Functions.Core;
 using Replay.Functions.Core.Types;
 using Replay.Functions.Menu;
 using Replay.Functions.Watching;
+using ReplayLoader;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;

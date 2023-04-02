@@ -23,7 +23,7 @@ using UnityModManagerNet;
 using Debug = System.Diagnostics.Debug;
 using Object = UnityEngine.Object;
 
-namespace Replay.Functions.Menu
+namespace Replay.Functions.Watching
 {
     [HarmonyPatch]
     public class ReplayBasePatches

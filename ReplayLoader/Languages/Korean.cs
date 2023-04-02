@@ -1,4 +1,4 @@
-﻿namespace Replay.Languages
+﻿namespace ReplayLoader.Languages
 {
     public class Korean : LocalizedText
     {
@@ -72,6 +72,8 @@
             showInputTiming = "입력 타이밍 표시";
             saveRealComplete = "처음부터 끝까지 레벨을 깰 때 저장하기 (0%~100%)";
             replayOption = "리플레이 옵션";
+
+            copyText = "오류 메시지 복사";
 
             UnsetTextSetting();
 

@@ -1,4 +1,4 @@
-﻿namespace Replay.Languages
+﻿namespace ReplayLoader.Languages
 {
     public class English : LocalizedText
     {
@@ -74,6 +74,9 @@
 
             showInputTiming = "Display input timing";
             saveRealComplete = "Save when you complete the level from start to finish (0%~100%)";
+            
+            copyText = "Copy Error Messages";
+            
             UnsetTextSetting();
 
         }
