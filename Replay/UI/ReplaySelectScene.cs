@@ -255,8 +255,10 @@ namespace Replay.UI
         {
             if(scnReplayIntro.scnReplayIntro.Instance != null)
                 scnReplayIntro.scnReplayIntro.Instance.StopAllCoroutines();
-            ReplayUIUtils.DoSwipe(() => { SceneManager.LoadScene(Replay.IsAlpha ? "scnLevelSelect" : "scnNewIntro"); });
+            ReplayUIUtils.DoSwipe(() => { SceneManager.LoadScene("scnLevelSelect",LoadSceneMode.Single); });
         }
+
+        
         
         public static void OnLoad()
         {

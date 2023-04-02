@@ -154,11 +154,11 @@ namespace Replay.Functions.Watching
                 if (rpl.SongName.IsTaro())
                 {
                     GCS.sceneToLoad = rpl.SongName;
-                    SceneManager.LoadScene("scnLoading");
+                    SceneManager.LoadScene("scnLoading", LoadSceneMode.Single);
                 }
                 else
                 {
-                    SceneManager.LoadScene(rpl.SongName);
+                    SceneManager.LoadScene(rpl.SongName, LoadSceneMode.Single);
                 }
             }
             else
@@ -166,7 +166,7 @@ namespace Replay.Functions.Watching
                 if (!File.Exists(rpl.Path)) return;
                 OfficialStartAt = 0;
 
-                SceneManager.LoadScene("scnEditor");
+                SceneManager.LoadScene("scnEditor", LoadSceneMode.Single);
                 GCS.customLevelPaths = new string[1];
                 GCS.customLevelPaths[0] = rpl.Path;
                 GCS.standaloneLevelMode = true;
