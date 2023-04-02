@@ -10,8 +10,9 @@ using Replay.Functions.Core.Types;
 using Replay.Functions.Menu;
 using Replay.Functions.Saving;
 using Replay.Functions.Watching;
-using Replay.Languages;
 using Replay.UI;
+using ReplayLoader;
+using ReplayLoader.Languages;
 using SFB;
 using SkyHook;
 using UnityEngine;
@@ -31,24 +32,14 @@ namespace Replay
         private static Harmony _replayHarmony;
         private static GUIStyle _title;
         private static GUIStyle _registerKeyButton;
-        private static Dictionary<SystemLanguage, LocalizedText> _languages = new Dictionary<SystemLanguage, LocalizedText>
-        {
-            {SystemLanguage.Korean, new Korean()},
-            {SystemLanguage.English, new English()},
-            {SystemLanguage.Japanese, new Japanese()},
-        };
-        
+
         internal static UnityModManager.ModEntry unityModEntry;
         
         public static bool IsDebug = true;
-        public static bool IsAlpha;
         public static KeyCode[] AllKeyCodes;
         public static ReplayOption ReplayOption = new ReplayOption();
         public static Dictionary<string, KeyviewerInput> KeyViewerOnOff = new Dictionary<string, KeyviewerInput>();
-        public static LocalizedText CurrentLang => _languages.TryGetValue(RDString.language, out var v)
-            ? v
-            : _languages[SystemLanguage.English];
-
+        public static LocalizedText CurrentLang => Loader.CurrentLang;
         public static string ClientID;
 
         static Replay()
@@ -70,6 +61,8 @@ namespace Replay
         
         public static void Setup(UnityModManager.ModEntry modEntry)
         {
+            
+            
 
             //var keyCodes = typeof(KeyCode).GetEnumNames();
 
@@ -80,8 +73,7 @@ namespace Replay
             Log(index);*/
 
 
-
-            IsAlpha = typeof(scrFloor).GetField("topGlow", AccessTools.all) != null;
+            
             
             ReplayOption = UnityModManager.ModSettings.Load<ReplayOption>(modEntry);
             _replayHarmony ??= new Harmony(modEntry.Info.Id);
@@ -98,8 +90,7 @@ namespace Replay
             modEntry.OnSaveGUI = OnSettingGUI;
             
             unityModEntry = modEntry;
-            ReplayAssets.Init();
-            
+
 
             if (!Directory.Exists(Path.Combine(Application.dataPath, "Replays")))
                 Directory.CreateDirectory(Path.Combine(Application.dataPath, "Replays"));
@@ -114,9 +105,18 @@ namespace Replay
 
             
             ClientID = SystemInfo.deviceUniqueIdentifier;
-            
-            
-            
+
+            SceneManager.sceneLoaded += (arg0, mode) =>
+            {
+                if (arg0.name == "scnEditor")
+                {
+                    if(SceneManager.GetSceneByName("scnReplayIntro").isLoaded)
+                        SceneManager.UnloadSceneAsync("scnReplayIntro");
+                }
+            };
+
+
+
         }
         
         
@@ -334,7 +334,7 @@ namespace Replay
                 {
                     if(scnReplayIntro.scnReplayIntro.Instance != null)
                         scnReplayIntro.scnReplayIntro.Instance.StopAllCoroutines();
-                    SceneManager.LoadScene(IsAlpha ? "scnLevelSelect" : "scnNewIntro");
+                    SceneManager.LoadScene("scnLevelSelect");
                 }
                 else
                     ADOBase.RestartScene();

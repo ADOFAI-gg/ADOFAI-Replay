@@ -147,8 +147,10 @@ namespace Replay.Functions.Menu
                     "MouseX1" => "Mouse3",
                     "MouseX2" => "Mouse4",
                     "BackSlash" => "Backslash",
+                    "Unknown" => "None",
                     _ => stringKey
                 };
+                
 
                 if (Enum.TryParse(stringKey, out KeyCode k))
                 {
@@ -173,10 +175,14 @@ namespace Replay.Functions.Menu
                     v.Enabled = false;
                 }
             }
-            
-            var r = ReplayAssets.Assets.LoadAsset<GameObject>("assets/prefs/replayui.prefab");
-            var a = Object.Instantiate(r);
-            Object.DontDestroyOnLoad(a);
+
+            if (ReplayUI.Instance == null)
+            {
+                var r = ReplayLoader.ReplayAssets.Assets.LoadAsset<GameObject>("assets/prefs/replayui.prefab");
+                var a = Object.Instantiate(r);
+                Object.DontDestroyOnLoad(a);
+                ReplayUI.Instance = r.GetComponent<ReplayUI>();
+            }
             ReplayViewingTool.PauseImage = ReplayUI.Instance.Pause.GetComponent<Image>();
 
             GlobalLanguage.OK = Replay.CurrentLang.agreed;
@@ -206,106 +212,8 @@ namespace Replay.Functions.Menu
                         return true;
                     },RDString.language);
             }
-            else
-            {
-
-                try
-                {
-
-                    var nowVersion = 0;
-                    int.TryParse(Replay.unityModEntry.Info.Version.Replace(".", ""), out nowVersion);
-
-                    var wc = new ServerManager.FastWebClient();
-                    wc.Encoding = Encoding.UTF8;
-                    wc.Headers.Add("user-agent",
-                        "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Mobile Safari/537.36");
-
-                    var data = wc.DownloadString(
-                        "https://api.github.com/repos/ADOFAI-gg/ADOFAI-Replay/releases/latest");
-                    var latestVersionString =
-                        data.Split(new[] { "\"tag_name\": \"" }, StringSplitOptions.None)[1].Split('"')[0]
-                            .Replace("v", "");
-
-                    Replay.Log(
-                        $"Current Version: {Replay.unityModEntry.Info.Version}, Latest Version: {latestVersionString}");
-                    var latestVersion = 0;
-                    int.TryParse(latestVersionString.Replace(".", ""), out latestVersion);
-
-                    if (latestVersion > nowVersion)
-                    {
-                        var body = data.Split(new[] { "\"body\": \"" }, StringSplitOptions.None)[1].Split('"')[0]
-                            .Replace("\\n", "\n").Replace("\\r", "\r");
-                        var url = data.Split(new[] { "\"browser_download_url\": \"" }, StringSplitOptions.None)[1]
-                            .Split('"')[0];
-
-                        GlobalLanguage.OK = Replay.CurrentLang.autoUpdate;
-                        GlobalLanguage.No = Replay.CurrentLang.nextTimeUpdate;
-
-                        _disableAll = true;
-                        scrController.instance.paused = true;
-                        Time.timeScale = 0;
-
-                        ReplayUI.Instance.ShowNotification(
-                            $"{Replay.CurrentLang.newReplayVersion} v" + latestVersionString, body,
-                            () =>
-                            {
-                                ReplayUI.Instance.Message.text = Replay.CurrentLang.downloadingText;
-                                scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
-                                ReplayUI.Instance.NoButton.gameObject.SetActive(false);
-                                ReplayUI.Instance.YesButton.gameObject.SetActive(false);
-                                wc.DownloadProgressChanged += (o, e) =>
-                                {
-                                    ReplayUI.Instance.Message.text = Replay.CurrentLang.downloadingText + " ( " +
-                                                                     e.ProgressPercentage + "% )";
-                                };
-                                wc.DownloadFileAsync(new Uri(url), Path.Combine(Path.GetTempPath(), "replay-new.zip"));
-                                wc.DownloadFileCompleted += (o, e) =>
-                                {
-
-                                    ReplayUI.Instance.Message.text = Replay.CurrentLang.restartSoon;
-                                    var thread = new Thread(() =>
-                                    {
-                                        foreach (var file in Directory.GetFiles(Replay.unityModEntry.Path))
-                                        {
-                                            try
-                                            {
-                                                if (Path.GetFileName(file) != "ReplayOption.xml")
-                                                    File.Delete(file);
-                                            }
-                                            catch
-                                            {
-                                                Replay.Log("Cant delete " + file);
-                                            }
-                                        }
-
-                                        ZipUtil.Unzip(Path.Combine(Path.GetTempPath(), "replay-new.zip"),
-                                            UnityModManager.modsPath);
-                                        File.Delete(Path.Combine(Path.GetTempPath(), "replay-new.zip"));
-
-                                        Application.Quit();
-                                        Process.Start($"\"{Path.GetFullPath(".")}\\{Application.productName}.exe\"");
-
-                                    });
-                                    thread.IsBackground = true;
-                                    thread.Start();
-
-
-
-                                };
-                                return false;
-                            }, () =>
-                            {
-                                scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
-                                return true;
-                            }, RDString.language);
-                    }
-                }
-                catch
-                {
-                    Replay.Log("Cant Update.");
-                }
-            }
             
+
             scnReplayIntro.scnReplayIntro.OnStart = ReplaySelectScene.Awake;
             scnReplayIntro.scnReplayIntro.OnQuit = ReplaySelectScene.OnQuit;
             scnReplayIntro.scnReplayIntro.OnLoad = ReplaySelectScene.OnLoad;
@@ -349,13 +257,13 @@ namespace Replay.Functions.Menu
             {
                 ReplayUIUtils.DoSwipe(() =>
                 {
-                    SceneManager.LoadScene("scnReplayIntro");
+                    SceneManager.LoadScene("scnReplayIntro", LoadSceneMode.Single);
                 });
                 return false;
             }
             return true;
         }
-
+        
 
         [HarmonyPatch(typeof(scnLevelSelect),"Update")]
         [HarmonyPrefix]
@@ -369,7 +277,7 @@ namespace Replay.Functions.Menu
           
                 ReplayUIUtils.DoSwipe(() =>
                 {
-                    SceneManager.LoadScene("scnReplayIntro");
+                    SceneManager.LoadScene("scnReplayIntro", LoadSceneMode.Single);
                 });
 
             }

@@ -21,8 +21,7 @@ namespace Replay.Functions.Watching
             var nextFloor = ReplayUtils.GetSafeList(floors, GCS.checkpointNum + 1);
             if (nextFloor != null)
             {
-                var topGlow = (SpriteRenderer)typeof(scrFloor)
-                    .GetField(Replay.IsAlpha ? "topGlow" : "topglow", AccessTools.all)?.GetValue(nextFloor);
+                var topGlow = nextFloor.topGlow;
                 if (topGlow != null)
                     if (!topGlow.enabled)
                     {
@@ -34,13 +33,11 @@ namespace Replay.Functions.Watching
             {
                 
                 var listFloor = floors[n];
-                var bottomGlow = (SpriteRenderer)typeof(scrFloor)
-                    .GetField(Replay.IsAlpha ? "bottomGlow" : "bottomglow", AccessTools.all)?.GetValue(listFloor);
+                var bottomGlow = listFloor.bottomGlow;
                 if (bottomGlow != null)
                     bottomGlow.enabled = false;
-                
-                var topGlow = (SpriteRenderer)typeof(scrFloor)
-                    .GetField(Replay.IsAlpha ? "topGlow" : "topglow", AccessTools.all)?.GetValue(listFloor);
+
+                var topGlow = listFloor.topGlow;
                 if (topGlow != null)
                     topGlow.enabled = false;
             }

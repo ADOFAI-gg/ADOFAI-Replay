@@ -11,6 +11,7 @@ namespace Replay.Functions.Core
         private static Assembly _adofaiTweaksAssembly;
         private static PropertyInfo _keyLimitSetting;
         private static List<KeyCode> _emptyKeyCode = new List<KeyCode>();
+        private static List<ushort> _emptyKeyShort = new List<ushort>();
 
         public static List<KeyCode> ActiveKeys
         {
@@ -20,8 +21,21 @@ namespace Replay.Functions.Core
                     return _emptyKeyCode;
                 var instance = _keyLimitSetting.GetValue(null);
                 var result =
-                    instance.GetType().GetProperty("ActiveKeys", AccessTools.all).GetValue(instance) as List<KeyCode>;
+                    instance.GetType()?.GetProperty("ActiveKeys", AccessTools.all)?.GetValue(instance) as List<KeyCode>;
                 return result ?? _emptyKeyCode;
+            }
+        }
+        
+        public static List<ushort> ActiveAsyncKeys
+        {
+            get
+            {
+                if (_keyLimitSetting == null)
+                    return _emptyKeyShort;
+                var instance = _keyLimitSetting.GetValue(null);
+                var result =
+                    instance.GetType()?.GetProperty("ActiveAsyncKeys", AccessTools.all)?.GetValue(instance) as List<ushort>;
+                return result ?? _emptyKeyShort;
             }
         }
 

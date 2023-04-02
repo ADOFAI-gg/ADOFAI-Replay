@@ -33,7 +33,7 @@ namespace Replay.Functions.Saving
         internal static List<PressInfo> _keyboardInfos = new List<PressInfo>();
         internal static int _cachedStartTile;
         internal static KeyCode[] LimitedKeys;
-        
+        internal static ushort[] LimitedKeys2;
         
 
 
@@ -149,13 +149,14 @@ namespace Replay.Functions.Saving
                     throw new Exception("the start tile and the end tile are the same");
                 ReplayUtils.SaveReplay(_replayInfo.SongName + (_replayInfo.GetHashCode()) + ".rpl", _replayInfo);
 
+                /*
                 if (Directory.Exists(Replay.ReplayOption.savedPath))
                 {
                     var files = Directory.GetFiles(Replay.ReplayOption.savedPath);
                     if (files.Length > 20)
                         File.Delete(files[0]);
                         
-                }
+                }*/
 
                 var sri = new SimpleReplayInfo
                 {
@@ -246,6 +247,7 @@ namespace Replay.Functions.Saving
             _keyboardInfos.Clear();
             _pressInfos.Clear();
             AddKeyInputsPatches.pressed.Clear();
+            AddKeyInputsPatches.pressed2.Clear();
             _replayInfo = new ReplayInfo
             {
                 StartTile = GCS.checkpointNum
@@ -255,6 +257,7 @@ namespace Replay.Functions.Saving
             _isSave = false;
             _tryDeathCamMode = false;
             LimitedKeys = AdofaiTweaksAPI.IsEnabled ? AdofaiTweaksAPI.ActiveKeys.ToArray(): null;
+            LimitedKeys2 = AdofaiTweaksAPI.IsEnabled ? AdofaiTweaksAPI.ActiveAsyncKeys.ToArray() : null;
             GC.Collect();
 
         }
@@ -343,6 +346,7 @@ namespace Replay.Functions.Saving
             _tryDeathCamMode = false;
             _pressInfos.Clear();
             AddKeyInputsPatches.pressed.Clear();
+            AddKeyInputsPatches.pressed2.Clear();
         }
         
         /*
@@ -369,6 +373,7 @@ namespace Replay.Functions.Saving
             _tryDeathCamMode = false;
             _pressInfos.Clear();
             AddKeyInputsPatches.pressed.Clear();
+            AddKeyInputsPatches.pressed2.Clear();
         }
 
 

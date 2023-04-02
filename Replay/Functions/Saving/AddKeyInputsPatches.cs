@@ -46,43 +46,6 @@ namespace Replay.Functions.Saving
         };
 
         public static Dictionary<KeyLabel, KeyCode> KeyLabelToKeyCode = new Dictionary<KeyLabel, KeyCode>();
-
-        private static KeyCode GetInput()
-        {
-            var keyCode = KeyCode.None;
-            if (RDC.auto || scrController.instance.midspinInfiniteMargin ||
-                scrController.instance.noFailInfiniteMargin) return keyCode;
-            if (_lastFrame == Time.unscaledTime)
-            {
-                if (_pressedKeys.Count > 0)
-                    keyCode = _pressedKeys.Dequeue();
-            }
-            else
-            {
-                _pressedKeys.Clear();
-                if(Replay.AllKeyCodes == null)
-                    Replay.AllKeyCodes = (KeyCode[])typeof(KeyCode).GetEnumValues();
-                
-                var keyCodes = SaveReplayPatches.LimitedKeys == null
-                    ? Replay.AllKeyCodes
-                    : SaveReplayPatches.LimitedKeys;
-                
-                foreach (var k in keyCodes)
-                {
-                    if(SaveReplayPatches.LimitedKeys == null && IgnoreKeys.TryGetValue(k, out var v)) continue;
-                    if(_heldPressInfo.TryGetValue(k, out var v3)) continue;
-                    if(Input.GetKeyDown(k))
-                        _pressedKeys.Enqueue(k);
-                }
-
-                if (_pressedKeys.Count > 0)
-                    keyCode = _pressedKeys.Dequeue();
-            }
-
-            return keyCode;
-        }
-
-   
         
         
         [HarmonyPatch(typeof(scrConductor), "StartMusicCo")]
@@ -104,6 +67,7 @@ namespace Replay.Functions.Saving
         }
 
         public static List<KeyCode> pressed = new List<KeyCode>();
+        public static List<KeyCode> pressed2 = new List<KeyCode>();
         [HarmonyPatch(typeof(scrController), "CountValidKeysPressed")]
         [HarmonyPrefix]
         public static void CountValidKeysPressed()
@@ -115,27 +79,48 @@ namespace Replay.Functions.Saving
                 if (obj.value is KeyCode || obj.value is AsyncKeyCode)
                 {
                     var code = KeyCode.None;
+                    ushort asyncCode = 0;
                     if (obj.value is KeyCode value)
                         code = value;
                     else if (obj.value is AsyncKeyCode value2)
-                        code = KeyLabelToKeyCode[value2.label];
+                    {
+                        asyncCode = value2.key;
+                        code = value2.key switch
+                        {
+  
+                            21 => KeyCode.RightAlt,
+                            92 => KeyCode.RightWindows,
+                            93 => KeyCode.Menu,
+                            25 => KeyCode.RightControl,
+                            _ => KeyLabelToKeyCode[value2.label]
+                        };
+                    }
+
                     if (!pressed.Contains(code))
                     {
                         if (AdofaiTweaksAPI.IsEnabled)
                         {
-                            if (AdofaiTweaksAPI.ActiveKeys.Contains(code))
+                            if (AdofaiTweaksAPI.ActiveKeys.Contains(code) && !AsyncInputManager.isActive)
+                            {
+                                pressed.Add(code);
+                                n++;
+                            }  else if (AdofaiTweaksAPI.ActiveAsyncKeys.Contains(asyncCode) && AsyncInputManager.isActive)
                             {
                                 pressed.Add(code);
                                 n++;
                             }
                         }
                         else
+                        {
                             pressed.Add(code);
+                        }
+                        if (!pressed2.Contains(code))
+                            pressed2.Add(code);
                     }
                 }
             }
 
-            if (AdofaiTweaksAPI.IsEnabled && n < 4)
+            if (AdofaiTweaksAPI.IsEnabled && n < 4 && !AsyncInputManager.isActive)
             {
                 foreach (var code in IgnoreKeys.Keys)
                 {
@@ -147,6 +132,8 @@ namespace Replay.Functions.Saving
                             if (AdofaiTweaksAPI.ActiveKeys.Contains(code))
                             {
                                 pressed.Add(code);
+                                if (!pressed2.Contains(code))
+                                    pressed2.Add(code);
                                 n++;
                             }
 
@@ -204,9 +191,8 @@ namespace Replay.Functions.Saving
             SaveReplayPatches._pressInfos.Add(t);
             _lastFrame = Time.unscaledTime;
         }
+        
 
- 
-/*
         [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
         [HarmonyPrefix]
         public static void KeyInputDetectPatch()
@@ -215,67 +201,29 @@ namespace Replay.Functions.Saving
             {
                 if (WatchReplay.IsPlaying) return;
                 if (!scrController.instance.goShown) return;
-                if (SaveReplayPatches._states == CustomControllerStates.Fail ||
-                    SaveReplayPatches._states == CustomControllerStates.Won) return;
 
-                foreach (var keyCode in Replay.AllKeyCodes)
-                {
-                    if (Input.GetKeyDown(keyCode))
+              
+
+                    foreach (var keyCode in pressed2)
                     {
-    
-                        var k = new PressInfo()
+                        if (Input.GetKey(keyCode))
                         {
-                            Key = keyCode,
-                            PressTime = (scrConductor.instance.dspTime - scrConductor.instance.dspTimeSongPosZero)
-                        };
-                        SaveReplayPatches._keyboardInfos.Add(k);
-                        _pressHeldInfo[keyCode] = k;
+                            if (_heldPressInfo.TryGetValue(keyCode, out var held))
+                                held.HeldTime += Time.unscaledDeltaTime;
+                        }
+
+                        if (Input.GetKeyUp(keyCode))
+                        {
+                            if (_heldPressInfo.TryGetValue(keyCode, out var held))
+                                _heldPressInfo.Remove(keyCode);
+                        }
+
                     }
-                    if (Input.GetKey(keyCode))
-                    {
-                        if (_pressHeldInfo.TryGetValue(keyCode, out var v))
-                            v.HeldTime += Time.unscaledDeltaTime;
-                    }
-
-                    if (Input.GetKeyUp(keyCode))
-                        _pressHeldInfo.Remove(keyCode);
-                }
-            }
-            catch
-            {
-
-            }
-        }*/
-
-        [HarmonyPatch(typeof(scrController), "PlayerControl_Update")]
-        [HarmonyPrefix]
-        public static void KeyInputDetectPatch()
-        {
-            try
-            {
-                if (WatchReplay.IsPlaying) return;
-                if (!scrController.instance.goShown) return;
-
-                var keyCodes = SaveReplayPatches.LimitedKeys == null
-                    ? Replay.AllKeyCodes
-                    : SaveReplayPatches.LimitedKeys;
                 
-                foreach (var keyCode in keyCodes)
-                {
-                    if(SaveReplayPatches.LimitedKeys == null && IgnoreKeys.TryGetValue(keyCode, out var v)) continue;
-                    if (Input.GetKey(keyCode))
-                    {
-                        if (_heldPressInfo.TryGetValue(keyCode, out var held))
-                            held.HeldTime += Time.unscaledDeltaTime;
-                    }
+               
+                
 
-                    if (Input.GetKeyUp(keyCode))
-                    {
-                        if (_heldPressInfo.TryGetValue(keyCode, out var held))
-                            _heldPressInfo.Remove(keyCode);
-                    }
-                    
-                }
+
             }
             catch
             {
