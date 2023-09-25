@@ -51,8 +51,14 @@ namespace Replay.Functions.Saving
             _replayInfo.AllTile = floor.Count;
             _replayInfo.BPM = scrConductor.instance.bpm;
 
-            var official = scrController.instance != null && scrController.instance.gameworld &&
-                           scnEditor.instance == null;
+            /*var official = scrController.instance != null && scrController.instance.gameworld &&
+                           scnGame.instance == null;*/
+            var official = ADOBase.isOfficialLevel;
+            
+            
+            
+            //Replay.Log("IsOfficial", official);
+            //Replay.Log("IsOfficial2", ADOBase.isOfficialLevel);
 
             if (official)
             {
@@ -85,14 +91,14 @@ namespace Replay.Functions.Saving
                     _replayInfo.PreviewImagePath = path;
                 }
             }
-            else if (!string.IsNullOrEmpty(CustomLevel.instance.levelPath))
+            else if (!string.IsNullOrEmpty(scnGame.instance.levelPath))
             {
-                var path = Directory.GetParent(CustomLevel.instance.levelPath).FullName;
+                var path = Directory.GetParent(scnGame.instance.levelPath).FullName;
 
-                if (File.Exists(Path.Combine(path, CustomLevel.instance.levelData.previewImage)))
-                    _replayInfo.PreviewImagePath = Path.Combine(path, CustomLevel.instance.levelData.previewImage);
-                else if (File.Exists(Path.Combine(path, CustomLevel.instance.levelData.bgImage)))
-                    _replayInfo.PreviewImagePath = Path.Combine(path, CustomLevel.instance.levelData.bgImage);
+                if (File.Exists(Path.Combine(path, scnGame.instance.levelData.previewImage)))
+                    _replayInfo.PreviewImagePath = Path.Combine(path, scnGame.instance.levelData.previewImage);
+                else if (File.Exists(Path.Combine(path, scnGame.instance.levelData.bgImage)))
+                    _replayInfo.PreviewImagePath = Path.Combine(path, scnGame.instance.levelData.bgImage);
                 
                 if (string.IsNullOrEmpty(_replayInfo.PreviewImagePath))
                 {
@@ -106,11 +112,11 @@ namespace Replay.Functions.Saving
 
 
             _replayInfo.IsOfficialLevel = official;
-            _replayInfo.Path = official ? GCS.sceneToLoad : CustomLevel.instance.levelPath;
+            _replayInfo.Path = official ? GCS.sceneToLoad : scnGame.instance.levelPath;
             _replayInfo.Speed = scrConductor.instance.song.pitch;
-            _replayInfo.AuthorName = official ? "7 beat games" : CustomLevel.instance.levelData.author;
-            _replayInfo.SongName = official ? scrController.instance.levelName : CustomLevel.instance.levelData.song;
-            _replayInfo.ArtistName = official ? "ADOFAI" : CustomLevel.instance.levelData.artist;
+            _replayInfo.AuthorName = official ? "7 beat games" : scnGame.instance.levelData.author;
+            _replayInfo.SongName = official ? scrController.instance.levelName : scnGame.instance.levelData.song;
+            _replayInfo.ArtistName = official ? "ADOFAI" : scnGame.instance.levelData.artist;
             _replayInfo.Tiles = _pressInfos.ToArray();
             _replayInfo.RedPlanet = ReplayUtils.UnityColor2CustomColor(Persistence.GetPlayerColor(true));
             _replayInfo.BluePlanet = ReplayUtils.UnityColor2CustomColor(Persistence.GetPlayerColor(false));
@@ -120,18 +126,18 @@ namespace Replay.Functions.Saving
                         floor[_replayInfo.StartTile].entryTime) * 1000));
             _replayInfo.PathDataHash = official
                 ? 0
-                : (CustomLevel.instance.levelData.isOldLevel
-                    ? CustomLevel.instance.levelData.pathData.GetHashCode()
-                    : string.Join("", CustomLevel.instance.levelData.angleData).GetHashCode());
+                : (scnGame.instance.levelData.isOldLevel
+                    ? scnGame.instance.levelData.pathData.GetHashCode()
+                    : string.Join("", scnGame.instance.levelData.angleData).GetHashCode());
             _replayInfo.Time = DateTime.Now;
 
             _replayInfo.SongName = ReplayUIUtils.RemoveHTML(_replayInfo.SongName);
 
             if (!official)
             {
-                if (!string.IsNullOrEmpty(CustomLevel.instance.levelData.songFilename))
+                if (!string.IsNullOrEmpty(scnGame.instance.levelData.songFilename))
                 {
-                    var song2 = Path.GetFileNameWithoutExtension(CustomLevel.instance.levelData.songFilename);
+                    var song2 = Path.GetFileNameWithoutExtension(scnGame.instance.levelData.songFilename);
                     if (string.IsNullOrEmpty(ReplayUIUtils.RemoveHTML(_replayInfo.SongName)))
                         _replayInfo.SongName = song2;
                     
@@ -194,7 +200,7 @@ namespace Replay.Functions.Saving
             var official = scrController.instance != null && scrController.instance.gameworld &&
                            scnEditor.instance == null;
             _replayInfo.IsOfficialLevel = official;
-            _replayInfo.Path = official ? GCS.sceneToLoad : CustomLevel.instance.levelPath;
+            _replayInfo.Path = official ? GCS.sceneToLoad : scnGame.instance.levelPath;
             
             if (string.IsNullOrEmpty(_replayInfo.Path) && !official)
             {
@@ -209,17 +215,17 @@ namespace Replay.Functions.Saving
             }
             
             _replayInfo.Speed = scrConductor.instance.song.pitch;
-            _replayInfo.AuthorName = official ? "7 beat games" : CustomLevel.instance.levelData.author;
-            _replayInfo.SongName = official ? scrController.instance.levelName : CustomLevel.instance.levelData.song;
-            _replayInfo.ArtistName = official ? "ADOFAI" : CustomLevel.instance.levelData.artist;
+            _replayInfo.AuthorName = official ? "7 beat games" : scnGame.instance.levelData.author;
+            _replayInfo.SongName = official ? scrController.instance.levelName : scnGame.instance.levelData.song;
+            _replayInfo.ArtistName = official ? "ADOFAI" : scnGame.instance.levelData.artist;
             _replayInfo.RedPlanet = ReplayUtils.UnityColor2CustomColor(Persistence.GetPlayerColor(true));
             _replayInfo.BluePlanet = ReplayUtils.UnityColor2CustomColor(Persistence.GetPlayerColor(false));
             _replayInfo.Difficulty = GCS.difficulty;
             _replayInfo.PathDataHash = official
                 ? 0
-                : (CustomLevel.instance.levelData.isOldLevel
-                    ? CustomLevel.instance.levelData.pathData.GetHashCode()
-                    : string.Join("", CustomLevel.instance.levelData.angleData).GetHashCode());
+                : (scnGame.instance.levelData.isOldLevel
+                    ? scnGame.instance.levelData.pathData.GetHashCode()
+                    : string.Join("", scnGame.instance.levelData.angleData).GetHashCode());
             _replayInfo.Time = DateTime.Now;
             
             GlobalLanguage.ReplayingTitle = Replay.CurrentLang.replayingText;
@@ -285,7 +291,7 @@ namespace Replay.Functions.Saving
         public static void LevelSettingPatch()
         {
             if (WatchReplay.IsPlaying) return;
-            if (!scrController.isGameWorld) return;
+            if (!scrController.instance.gameworld) return;
 
             ResetReplayInfo();
         }
@@ -298,7 +304,7 @@ namespace Replay.Functions.Saving
         [HarmonyPrefix]
         public static void OnLandOnPortalPatch()
         {
-            if (!scrController.isGameWorld) return;
+            if (!scrController.instance.gameworld) return;
             if (WatchReplay.IsPlaying) return;
             if (_replayInfo == null) return;
             

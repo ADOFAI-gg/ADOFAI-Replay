@@ -88,7 +88,7 @@ namespace Replay.Functions.Watching
                 if (b is PauseButton button)
                 {
                     if (button.rdString == "pauseMenu.levelEditor" &&
-                        !string.IsNullOrEmpty((string)CustomLevel.instance.levelData.songSettings["songURL"]))
+                        !string.IsNullOrEmpty((string)scnGame.instance.levelData.songSettings["songURL"]))
                         return false;
                     return !(button.rdString == "pauseMenu.restart" || button.rdString == "pauseMenu.practice" ||
                              button.rdString == "pauseMenu.settings" || button.rdString == "pauseMenu.next" ||

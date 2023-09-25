@@ -24,7 +24,7 @@ namespace Replay.Functions.Watching
         }
 
         
-        [HarmonyPatch(typeof(scnEditor), "Update")]
+        [HarmonyPatch(typeof(scnGame), "Update")]
         [HarmonyPrefix]
         public static void CameraMovePatch()
         {

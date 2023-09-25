@@ -4,11 +4,13 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using HarmonyLib;
 using ReplayLoader.Languages;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityModManagerNet;
+using Application = System.Windows.Forms.Application;
 
 namespace ReplayLoader
 {

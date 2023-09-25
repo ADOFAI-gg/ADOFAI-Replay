@@ -150,9 +150,9 @@ namespace Replay.Functions.Saving
             if (WatchReplay.IsPlaying) return;
             var controller = scrController.instance;
             var planet = controller.chosenplanet;
-            var isFreeroam = controller.currFloor.freeroam && !scrController.isGameWorld;
+            var isFreeroam = controller.currFloor.freeroam && !scrController.instance.gameworld;
             
-            if (!scrController.isGameWorld && !isFreeroam) return;
+            if (!scrController.instance.gameworld && !isFreeroam) return;
             if (scrController.instance.currFloor.midSpin) return;
             //if (scrController.instance.noFailInfiniteMargin) return; 
 
@@ -173,6 +173,13 @@ namespace Replay.Functions.Saving
                 Key = keyCode,
                 HitTimingPosition = ReplayUtils.UnityVector2MiniVector(planet.other.transform.position)
             };
+
+            if (scrController.instance.planetList.Count == 3)
+            {
+                t.HitTimingPosition = ReplayUtils.UnityVector2MiniVector(planet.next.transform.position);
+            }
+            
+            
             if(keyCode != KeyCode.None) _heldPressInfo[keyCode] = t;
             if (Replay.ReplayOption.CanICollectReplayFile == 1)
             {

@@ -243,6 +243,7 @@ namespace Replay.UI
                 }
                 catch (Exception e)
                 {
+                    Replay.Log(Path.GetFileNameWithoutExtension(f)+"에서 에러");
                     Replay.Log(e);
                 }
 

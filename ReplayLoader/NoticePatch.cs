@@ -33,7 +33,7 @@ namespace ReplayLoader
                 var r = ReplayAssets.Assets.LoadAsset<GameObject>("assets/prefs/replayui.prefab");
                 var a = Object.Instantiate(r);
                 Object.DontDestroyOnLoad(a);
-                ReplayUI.Instance = r.GetComponent<ReplayUI>();
+                ReplayUI.Instance = a.GetComponent<ReplayUI>();
             }
 
             if (Loader._updateInfo.mustUpdate)

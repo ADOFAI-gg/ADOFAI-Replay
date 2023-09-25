@@ -182,6 +182,8 @@ namespace Replay.Functions.Menu
                 var a = Object.Instantiate(r);
                 Object.DontDestroyOnLoad(a);
                 ReplayUI.Instance = r.GetComponent<ReplayUI>();
+                ReplayUI.Instance.enabled = true;
+                ReplayUI.Instance.gameObject.SetActive(true);
             }
             ReplayViewingTool.PauseImage = ReplayUI.Instance.Pause.GetComponent<Image>();
 

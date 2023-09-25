@@ -46,6 +46,7 @@ namespace Replay.Functions.Core
                 if (_keyLimitSetting == null)
                     return false;
                 var instance = _keyLimitSetting.GetValue(null);
+                if (instance == null) return false;
                 return (bool)instance.GetType().GetProperty("IsEnabled", AccessTools.all).GetValue(instance);
             }
         }

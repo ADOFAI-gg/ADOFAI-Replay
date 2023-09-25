@@ -99,7 +99,6 @@ namespace Replay.Functions.Watching
             WatchReplay.IsPlaying = false;
 
             GCS.customLevelPaths = null;
-            GCS.standaloneLevelMode = false;
             GCS.checkpointNum = 0;
             ReplayUI.Instance.InGameUI.SetActive(false);
             
@@ -355,7 +354,7 @@ namespace Replay.Functions.Watching
             }
             
 
-            return scrController.isGameWorld && angleOverd && validTile;
+            return scrController.instance.gameworld && angleOverd && validTile;
         }
         
         
@@ -377,7 +376,7 @@ namespace Replay.Functions.Watching
        
 
 
-        [HarmonyPatch(typeof(CustomLevel), "Play")]
+        [HarmonyPatch(typeof(scnGame), "Play")]
         [HarmonyPrefix]
         public static void ForceCustomSeqIDPlayPatch(ref int seqID)
         {
@@ -401,7 +400,7 @@ namespace Replay.Functions.Watching
             _paused = scrController.instance.paused;
             
             if (!WatchReplay.IsPlaying) return;
-            if (!scrController.isGameWorld) return;
+            if (!scrController.instance.gameworld) return;
             if (!_playingReplayInfo.IsOfficialLevel) return;
             if (!_forcePlay) return;
             _forcePlay = false;
@@ -428,10 +427,9 @@ namespace Replay.Functions.Watching
             WatchReplay.DisableAllEffects(true);
 
             ___exitingToMainMenu = true;
-            RDUtils.SetGarbageCollectionEnabled(true);
+            GC.Collect();
             ADOBase.audioManager.StopLoadingMP3File();
-
-            GCS.standaloneLevelMode = false;
+            
             GCS.worldEntrance = null;
             GCS.checkpointNum = 0;
             GCS.currentSpeedTrial = 1f;
@@ -464,7 +462,7 @@ namespace Replay.Functions.Watching
         public static bool DisableSwipePatch()
         {
             if (!WatchReplay.IsPlaying) return true;
-            if (!scrController.isGameWorld) return true;
+            if (!scrController.instance.gameworld) return true;
             if (WatchReplay.IsPaused || WatchReplay.IsPlanetDied)
                 return false;
             
@@ -496,9 +494,9 @@ namespace Replay.Functions.Watching
             if (!WatchReplay.IsPlaying) return;
             var hash = _playingReplayInfo.IsOfficialLevel
                 ? 0
-                : (CustomLevel.instance.levelData.isOldLevel
-                    ? CustomLevel.instance.levelData.pathData.GetHashCode()
-                    : string.Join("", CustomLevel.instance.levelData.angleData).GetHashCode());
+                : (scnGame.instance.levelData.isOldLevel
+                    ? scnGame.instance.levelData.pathData.GetHashCode()
+                    : string.Join("", scnGame.instance.levelData.angleData).GetHashCode());
 
 
             if (hash != _playingReplayInfo.PathDataHash)
@@ -507,10 +505,9 @@ namespace Replay.Functions.Watching
             
                 WatchReplay.DisableAllEffects();
                 
-                RDUtils.SetGarbageCollectionEnabled(true);
+                GC.Collect();
                 ADOBase.audioManager.StopLoadingMP3File();
-
-                GCS.standaloneLevelMode = false;
+                
                 GCS.worldEntrance = null;
                 GCS.checkpointNum = 0;
                 GCS.currentSpeedTrial = 1f;
@@ -586,41 +583,55 @@ namespace Replay.Functions.Watching
             WatchReplay.IsPaused = true;
             ReplayViewingTool.TogglePause();
 
-            GCS.perfectOnlyMode = false;
+            GCS.hitMarginLimit = HitMarginLimit.None;
 
             song_loading = false;
-            if (YoutubeStreamAPI.Enabled)
+            if (!_playingReplayInfo.IsOfficialLevel)
             {
-                if (!string.IsNullOrEmpty((string)CustomLevel.instance.levelData.songSettings["songURL"]))
+                if (YoutubeStreamAPI.Enabled)
                 {
-                    var a = typeof(CustomLevel).GetField("currentSongKey",
-                        BindingFlags.Instance | BindingFlags.NonPublic);
-                    if (YoutubeStreamAPI.newSongKey != (string)a.GetValue(CustomLevel.instance))
+                    if (!string.IsNullOrEmpty((string)scnGame.instance.levelData.songSettings["songURL"]))
                     {
-                        song_loading = true;
-                        scnEditor.instance.StartCoroutine(WaitSongLoading(___text, a));
+                        var a = typeof(scnGame).GetField("currentSongKey",
+                            BindingFlags.Instance | BindingFlags.NonPublic);
+                        if (YoutubeStreamAPI.newSongKey != (string)a.GetValue(scnGame.instance))
+                        {
+                            song_loading = true;
+                            scnEditor.instance.StartCoroutine(WaitSongLoading(___text, a));
+                        }
                     }
                 }
             }
-      
-            
-            
-            
-            _ballBorders.Clear();
-            for (var n = 0; n < max_range; n++)
-            {
-                if (Replay.ReplayOption.showInputTiming &&
-                    ReplayUtils.CanGet(_playingReplayInfo.Tiles.Length, _index + n) && !_isOldReplay)
-                {
-                    if (!_ballBorders.TryGetValue(_index + n, out var v))
-                    {
-                        var t = _playingReplayInfo.Tiles[_index + n];
-                        var b = BallBorder.Create(
-                            ReplayUtils.MiniVector2UnityVector(t.HitTimingPosition),
-                            t.Hitmargin, 1f);
-                        _ballBorders[_index + n] = b;
-                    }
 
+
+
+
+            _ballBorders.Clear();
+            if (WatchReplay.Reloaded)
+            {
+                _ballBorders.Clear();
+                BallBorder.CreatedBallBorders2.Clear();
+                BallBorder.CreatedBallBorders.Clear();
+                WatchReplay.Reloaded = false;
+            }
+
+            if (Replay.ReplayOption.showInputTiming)
+            {
+                for (var n = 0; n < max_range; n++)
+                {
+                    if (Replay.ReplayOption.showInputTiming &&
+                        ReplayUtils.CanGet(_playingReplayInfo.Tiles.Length, _index + n) && !_isOldReplay)
+                    {
+                        if (!_ballBorders.TryGetValue(_index + n, out var v))
+                        {
+                            var t = _playingReplayInfo.Tiles[_index + n];
+                            var b = BallBorder.Create(
+                                ReplayUtils.MiniVector2UnityVector(t.HitTimingPosition),
+                                t.Hitmargin, 1f);
+                            _ballBorders[_index + n] = b;
+                        }
+
+                    }
                 }
             }
         }
@@ -683,7 +694,7 @@ namespace Replay.Functions.Watching
         {
             song_loading = true;
             text.text = Replay.CurrentLang.loading;
-            yield return new WaitUntil(() => YoutubeStreamAPI.newSongKey == (string)f.GetValue(CustomLevel.instance));
+            yield return new WaitUntil(() => YoutubeStreamAPI.newSongKey == (string)f.GetValue(scnGame.instance));
             text.text = Replay.CurrentLang.pressToPlay;
             song_loading = false;
         }
@@ -851,6 +862,7 @@ namespace Replay.Functions.Watching
         [HarmonyPrefix]
         public static void ReplayPlanetUpdatePatch()
         {
+
             if (!WatchReplay.IsPlaying) return;
             if (_playingReplayInfo == null) return;
 
@@ -858,6 +870,7 @@ namespace Replay.Functions.Watching
                 ReplayViewingTool.UpdateTime();
 
             if (CheckInvalidIndex()) return;
+            
 
             var num0 = 10;
             while (IsHitNow() && !WatchReplay.IsLoading && WatchReplay.IsPlaying && num0 > 0)

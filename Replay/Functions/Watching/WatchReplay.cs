@@ -25,11 +25,13 @@ namespace Replay.Functions.Watching
         public static float PatchedPitch;
         public static int OfficialStartAt;
 
+        public static bool Reloaded;
+
         public static void RestartLevelAt(int seqID)
         {
             IsLoading = true;
             GCS.checkpointNum = seqID;
-            if (scnEditor.instance != null)
+            if (scnGame.instance != null)
             {
                 Time.timeScale = 1;
                 scrController.instance.enabled = true;
@@ -43,7 +45,9 @@ namespace Replay.Functions.Watching
             else
             {
                 OfficialStartAt = seqID;
+                Reloaded = true;
                 scrController.instance.Restart();
+                
             }
         }
         
@@ -58,7 +62,7 @@ namespace Replay.Functions.Watching
         public static IEnumerator ResetCustomLevel()
         {
             var controller = scrController.instance;
-            if (GCS.standaloneLevelMode)
+            if (ADOBase.isScnGame)
             {
                 bool complete = false;
                 scrUIController.instance.WipeToBlack(WipeDirection.StartsFromRight,  (() => complete = true));
@@ -66,13 +70,13 @@ namespace Replay.Functions.Watching
                     yield return null;
             }
             else
-                RDUtils.SetGarbageCollectionEnabled(true);
+                GC.Collect();
             
-            CustomLevel.instance.ResetScene();
-            CustomLevel.instance.Play(GCS.checkpointNum);
+            scnGame.instance.ResetScene();
+            scnGame.instance.Play(GCS.checkpointNum);
             typeof(scrController).GetField("transitioningLevel",AccessTools.all).SetValue(controller, false);
             
-            if (GCS.standaloneLevelMode)
+            if (ADOBase.isScnGame)
             {
                 yield return null;
                 scrUIController.instance.WipeFromBlack();
@@ -140,6 +144,7 @@ namespace Replay.Functions.Watching
         // Play a replay based on the replayInfo
         public static void Play(ReplayInfo rpl, bool deathcam = false)
         {
+            if (rpl == null) return;
             IsDeathCam = deathcam;
             
             if(scrController.instance != null)
@@ -151,25 +156,32 @@ namespace Replay.Functions.Watching
             {
                 GCS.checkpointNum = rpl.StartTile;
                 OfficialStartAt = rpl.StartTile;
+                
                 if (rpl.SongName.IsTaro())
                 {
                     GCS.sceneToLoad = rpl.SongName;
                     SceneManager.LoadScene("scnLoading", LoadSceneMode.Single);
                 }
+                else if (rpl.SongName == "XI-X")
+                {
+                    GCS.internalLevelName = "XI-X";
+                    SceneManager.LoadScene("scnGame", LoadSceneMode.Single);
+                }
                 else
                 {
+
                     SceneManager.LoadScene(rpl.SongName, LoadSceneMode.Single);
                 }
+
             }
             else
             {
                 if (!File.Exists(rpl.Path)) return;
                 OfficialStartAt = 0;
 
-                SceneManager.LoadScene("scnEditor", LoadSceneMode.Single);
+                SceneManager.LoadScene("scnGame", LoadSceneMode.Single);
                 GCS.customLevelPaths = new string[1];
                 GCS.customLevelPaths[0] = rpl.Path;
-                GCS.standaloneLevelMode = true;
                 GCS.checkpointNum = rpl.StartTile;
             }
             
