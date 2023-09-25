@@ -108,8 +108,8 @@ namespace Replay.Functions.Watching
 
             if (scrController.instance != null)
             {
-                scrController.instance.errorMeter.UpdateLayout(Persistence.GetHitErrorMeterSize(),
-                    Persistence.GetHitErrorMeterShape());
+                scrController.instance.errorMeter.UpdateLayout(Persistence.hitErrorMeterSize,
+                    Persistence.hitErrorMeterShape);
             }
 
             KeyboradHook.OnEndInputs();

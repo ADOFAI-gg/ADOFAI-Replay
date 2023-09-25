@@ -84,7 +84,7 @@ namespace ReplayLoader
                                 }
 
 
-                                ZipUtil.Unzip(Path.Combine(Path.GetTempPath(), "replay-new.zip"),
+                                ZipUtils.Unzip(Path.Combine(Path.GetTempPath(), "replay-new.zip"),
                                     Path.Combine(UnityModManager.modsPath, "Replay"));
                                 File.Delete(Path.Combine(Path.GetTempPath(), "replay-new.zip"));
 
