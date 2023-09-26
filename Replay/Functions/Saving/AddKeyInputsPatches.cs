@@ -66,16 +66,21 @@ namespace Replay.Functions.Saving
             pressed.Clear();
         }
 
+        // 가장 최근의 누른 키
         public static List<KeyCode> pressed = new List<KeyCode>();
+        // 홀드 처리용 저장
         public static List<KeyCode> pressed2 = new List<KeyCode>();
         [HarmonyPatch(typeof(scrController), "CountValidKeysPressed")]
         [HarmonyPrefix]
         public static void CountValidKeysPressed()
         {
+            if (WatchReplay.IsPlaying) return;
+
             var n = 0;
             foreach (var obj in RDInput.GetMainPressKeys())
             {
                 if (n == 4) break;
+                
                 if (obj.value is KeyCode || obj.value is AsyncKeyCode)
                 {
                     var code = KeyCode.None;
@@ -87,7 +92,6 @@ namespace Replay.Functions.Saving
                         asyncCode = value2.key;
                         code = value2.key switch
                         {
-  
                             21 => KeyCode.RightAlt,
                             92 => KeyCode.RightWindows,
                             93 => KeyCode.Menu,
@@ -104,18 +108,26 @@ namespace Replay.Functions.Saving
                             {
                                 pressed.Add(code);
                                 n++;
+                                
+                                if (!pressed2.Contains(code))
+                                    pressed2.Add(code);
                             }  else if (AdofaiTweaksAPI.ActiveAsyncKeys.Contains(asyncCode) && AsyncInputManager.isActive)
                             {
                                 pressed.Add(code);
                                 n++;
+                                
+                                if (!pressed2.Contains(code))
+                                    pressed2.Add(code);
                             }
+                            
                         }
                         else
                         {
                             pressed.Add(code);
+                            
+                            if (!pressed2.Contains(code))
+                                pressed2.Add(code);
                         }
-                        if (!pressed2.Contains(code))
-                            pressed2.Add(code);
                     }
                 }
             }
@@ -204,9 +216,10 @@ namespace Replay.Functions.Saving
         [HarmonyPrefix]
         public static void KeyInputDetectPatch()
         {
+            if (WatchReplay.IsPlaying) return;
+            
             try
             {
-                if (WatchReplay.IsPlaying) return;
                 if (!scrController.instance.goShown) return;
 
               
