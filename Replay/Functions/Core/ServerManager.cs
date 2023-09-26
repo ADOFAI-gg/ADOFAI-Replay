@@ -125,11 +125,6 @@ namespace Replay.Functions.Core
                             }
                             ReplayUI.Instance.Message.text = Replay.CurrentLang.preparing;
                             
-                            
-                            var ibm437 = Encoding.GetEncoding("IBM437");
-                            var euckr = Encoding.GetEncoding("euc-kr");
-                            
-                            
 
                             ZipUtils.Unzip(Path.Combine(Application.dataPath, "DownlodedLevels", Rpl.PathDataHash + ".zip"),
                                 Path.Combine(Application.dataPath, "DownlodedLevels", Rpl.PathDataHash.ToString()));
@@ -391,7 +386,7 @@ namespace Replay.Functions.Core
                                     return true;
                                 }, RDString.language);
                             Loader.UpdateLayoutNextFrame();
-                            
+
                         });
                         State = UploadState.Success;
                     };
