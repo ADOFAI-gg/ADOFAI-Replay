@@ -15,6 +15,7 @@ using Replay.Functions.Core.Types;
 using Replay.Functions.Saving;
 using Replay.Functions.Watching;
 using Replay.UI;
+using ReplayLoader;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -108,8 +109,8 @@ namespace Replay.Functions.Watching
 
             if (scrController.instance != null)
             {
-                scrController.instance.errorMeter.UpdateLayout(Persistence.GetHitErrorMeterSize(),
-                    Persistence.GetHitErrorMeterShape());
+                scrController.instance.errorMeter.UpdateLayout(Persistence.hitErrorMeterSize,
+                    Persistence.hitErrorMeterShape);
             }
 
             KeyboradHook.OnEndInputs();
@@ -535,7 +536,7 @@ namespace Replay.Functions.Watching
                         scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
                         return true;
                     }, null, RDString.language);
-                ReplayViewingTool.UpdateLayout();
+                Loader.UpdateLayoutNextFrame();
                 return;
             }
             

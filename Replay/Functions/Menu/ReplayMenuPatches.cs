@@ -17,6 +17,7 @@ using Replay.Functions.Core;
 using Replay.Functions.Saving;
 using Replay.Functions.Watching;
 using Replay.UI;
+using ReplayLoader;
 using SkyHook;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -226,21 +227,14 @@ namespace Replay.Functions.Menu
                 var rpl = ReplayUtils.LoadReplay(args[1]);
                 WatchReplay.Play(rpl);
             }
-            
-            if(ReplayUI.Instance!=null)
-                ReplayUI.Instance.StartCoroutine(Nextframe());
+
+            Loader.UpdateLayoutNextFrame();
         }
         
         
 
        
-        private static IEnumerator Nextframe()
-        {
-            yield return null;
-            ReplayViewingTool.UpdateLayout();
-            yield return new WaitForEndOfFrame();
-            ReplayViewingTool.UpdateLayout();
-        }
+       
         
         [HarmonyPatch(typeof(ReplayUIUtils), "InitUI")]
         [HarmonyPostfix]

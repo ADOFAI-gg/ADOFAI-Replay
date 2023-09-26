@@ -45,27 +45,6 @@ namespace Replay.UI
             ReplaySlider.OnMouseDown = OnPointerDown;
             
             _listenerAdded = true;
-
-        }
-
-        // UpdateLayout
-        public static void UpdateLayout()
-        {
-            if (ReplayUI.Instance != null)
-            {
-                if (ReplayUI.Instance.BbiBbiGameobject != null)
-                {
-                    var t = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.GetComponent<RectTransform>();
-                    if(t!=null)
-                        LayoutRebuilder.ForceRebuildLayoutImmediate(t);
-                    var t2 = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.Find("No")?.GetComponent<RectTransform>();
-                    if(t2!=null)
-                        LayoutRebuilder.ForceRebuildLayoutImmediate(t2);
-                    var t3 = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.Find("Yes")?.GetComponent<RectTransform>();
-                    if(t3!=null)
-                        LayoutRebuilder.ForceRebuildLayoutImmediate(t3);
-                }
-            }
         }
 
 
@@ -219,7 +198,6 @@ namespace Replay.UI
                 _goBackStack = 0;
             });
         }
-
         
         // Adjust directly through the slider
         public static void OnValueChange(float value)
@@ -232,8 +210,6 @@ namespace Replay.UI
                 _sliderUpdate.Kill();
                 _sliderUpdate = null;
             }
-            
-
             
             _valueChanging = true;
             _sliderUpdate = DOVirtual.DelayedCall(0.3f, () =>
@@ -299,6 +275,7 @@ namespace Replay.UI
                 _pitchUpDown.Kill();
                 _pitchUpDown = null;
             }
+            
             _pitchUpDown = DOVirtual.DelayedCall(0.3f, () =>
             {
                 WatchReplay.PatchedPitch = GCS.currentSpeedTrial;

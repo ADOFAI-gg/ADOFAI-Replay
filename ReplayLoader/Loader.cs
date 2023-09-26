@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -9,6 +10,7 @@ using HarmonyLib;
 using ReplayLoader.Languages;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using UnityModManagerNet;
 using Application = System.Windows.Forms.Application;
 
@@ -32,6 +34,40 @@ namespace ReplayLoader
         internal static UnityModManager.ModEntry unityModEntry;
         internal static UpdateInfo _updateInfo = new UpdateInfo();
         internal static string errorMessage;
+        
+        private static void UpdateLayout()
+        {
+            if (ReplayUI.Instance != null)
+            {
+                if (ReplayUI.Instance.BbiBbiGameobject != null)
+                {
+                    var t = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.GetComponent<RectTransform>();
+                    if(t!=null)
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(t);
+                    var t2 = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.Find("No")?.GetComponent<RectTransform>();
+                    if(t2!=null)
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(t2);
+                    var t3 = ReplayUI.Instance.BbiBbiGameobject.transform?.Find("TextLayout")?.Find("Yes")?.GetComponent<RectTransform>();
+                    if(t3!=null)
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(t3);
+                }
+            }
+        }
+        
+        public static void UpdateLayoutNextFrame()
+        {
+            UpdateLayout();
+            ReplayUI.Instance?.StartCoroutine(NextframeUpdate());
+        }
+        
+        
+        private static IEnumerator NextframeUpdate()
+        {
+            yield return null;
+            UpdateLayout();
+            yield return new WaitForEndOfFrame();
+            UpdateLayout();
+        }
         
         public static void Setup(UnityModManager.ModEntry modEntry)
         {

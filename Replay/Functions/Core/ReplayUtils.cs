@@ -17,6 +17,7 @@ using Replay.Functions.Core.Types;
 using Replay.Functions.Watching;
 using TinyJson;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityModManagerNet;
 using Random = System.Random;
 
@@ -149,6 +150,7 @@ namespace Replay.Functions.Core
         {
             return new NiceUnityColor(c.r, c.g, c.b, c.a);
         }
+        
 
         public static string ObjectToJSON(object rpl, bool isArray = false)
         {
