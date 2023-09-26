@@ -6,6 +6,7 @@ using System.Text;
 using DG.Tweening;
 using Replay.Functions.Core.Types;
 using Replay.UI;
+using ReplayLoader;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using ZipFile = System.IO.Compression.ZipFile;
@@ -389,7 +390,7 @@ namespace Replay.Functions.Core
                                     scrSfx.instance.PlaySfx(SfxSound.MenuSquelch);
                                     return true;
                                 }, RDString.language);
-                            ReplayViewingTool.UpdateLayout();
+                            Loader.UpdateLayoutNextFrame();
                             
                         });
                         State = UploadState.Success;
