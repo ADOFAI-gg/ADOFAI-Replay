@@ -97,7 +97,7 @@
         <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\RDTools.dll</HintPath>
       </Reference>
       <Reference Include="ReplayLoader">
-        <HintPath>..\ReplayLoader\bin\Debug\ReplayLoader.dll</HintPath>
+        <HintPath>bin\Debug\net4.8\ReplayLoader.dll</HintPath>
       </Reference>
       <Reference Include="ReplayUI">
         <HintPath>..\..\..\..\SteamLibrary\steamapps\common\A Dance of Fire and Ice\Mods\Replay\ReplayUI.dll</HintPath>
