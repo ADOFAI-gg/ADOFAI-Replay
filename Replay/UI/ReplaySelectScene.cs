@@ -17,6 +17,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityModManagerNet;
 using Object = UnityEngine.Object;
 
 namespace Replay.UI

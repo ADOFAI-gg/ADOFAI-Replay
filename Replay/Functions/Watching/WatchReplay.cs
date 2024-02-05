@@ -200,7 +200,7 @@ namespace Replay.Functions.Watching
             planet.SetRainbow(false);
             if (Persistence.GetSamuraiMode(planet.isRed))
                 planet.ToggleSamurai(true);
-            planet.SetFaceMode(Persistence.GetFaceMode(planet.isRed), false);
+            planet.SetEmojiMode(Persistence.GetEmojiMode(planet.isRed), false);
             
             var playerColor =
                 ReplayUtils.CustomColor2UnityColor(planet.isRed

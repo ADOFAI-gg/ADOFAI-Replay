@@ -537,6 +537,7 @@ namespace Replay.Functions.Watching
                         return true;
                     }, null, RDString.language);
                 Loader.UpdateLayoutNextFrame();
+                
                 return;
             }
             
